@@ -1,0 +1,103 @@
+// prisma/schema.prisma - 이 파일 전체를 복사해서 붙여넣으세요
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  username    String   @unique
+  name        String?
+  avatar      String?
+  bio         String?
+  website     String?
+  github      String?
+  linkedin    String?
+  password    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // 관계
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+  
+  @@map("users")
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  content     String
+  excerpt     String?
+  slug        String   @unique
+  published   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // 관계
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likes       Like[]
+  tags        PostTag[]
+  
+  @@map("posts")
+}
+
+model Tag {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  color     String   @default("#3B82F6")
+  createdAt DateTime @default(now())
+  
+  // 관계
+  posts     PostTag[]
+  
+  @@map("tags")
+}
+
+model PostTag {
+  id     String @id @default(cuid())
+  postId String
+  tagId  String
+  
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, tagId])
+  @@map("post_tags")
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  // 관계
+  postId    String
+  authorId  String
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  @@map("comments")
+}
+
+model Like {
+  id       String @id @default(cuid())
+  postId   String
+  authorId String
+  
+  post     Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  
+  @@unique([postId, authorId])
+  @@map("likes")
+}

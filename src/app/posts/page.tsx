@@ -1,0 +1,178 @@
+// src/app/posts/page.tsx
+'use client';
+
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Header from '@/components/layout/header';
+import { formatDate } from '@/lib/utils';
+import { Search, Heart, MessageCircle } from 'lucide-react';
+
+interface Post {
+  id: string;
+  title: string;
+  excerpt: string;
+  slug: string;
+  createdAt: string;
+  author: {
+    id: string;
+    name: string;
+    username: string;
+    avatar?: string;
+  };
+  tags: {
+    tag: {
+      id: string;
+      name: string;
+      color: string;
+    };
+  }[];
+  _count: {
+    comments: number;
+    likes: number;
+  };
+}
+
+export default function PostsPage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState('');
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+
+  const fetchPosts = async (pageNum: number = 1, searchTerm: string = '') => {
+    try {
+      const params = new URLSearchParams({
+        page: pageNum.toString(),
+        limit: '10',
+        ...(searchTerm && { search: searchTerm }),
+      });
+
+      const response = await fetch(`/api/posts?${params}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        if (pageNum === 1) {
+          setPosts(data.posts);
+        } else {
+          setPosts((prev) => [...prev, ...data.posts]);
+        }
+        setHasMore(data.pagination.page < data.pagination.totalPages);
+      }
+    } catch (error) {
+      console.error('포스트 불러오기 오류:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPosts(1, search);
+  }, [search]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setPage(1);
+    fetchPosts(1, search);
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchPosts(nextPage, search);
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="flex justify-center items-center min-h-[400px]">
+            <div className="text-gray-500">로딩 중...</div>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-6">모든 포스트</h1>
+
+          {/* 검색 바 */}
+          <form onSubmit={handleSearchSubmit} className="relative max-w-md">
+            <Input type="text" placeholder="포스트 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pr-10" />
+            <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+              <Search className="h-4 w-4" />
+            </button>
+          </form>
+        </div>
+
+        {posts.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-gray-500 text-lg">아직 포스트가 없습니다.</p>
+            <p className="text-gray-400 mt-2">첫 번째 포스트를 작성해보세요!</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+              {posts.map((post) => (
+                <Card key={post.id} className="hover:shadow-lg transition-shadow">
+                  <Link href={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors">
+                    <CardHeader>
+                      <CardTitle className="line-clamp-2">{post.title}</CardTitle>
+                      <div className="flex items-center justify-between text-sm text-gray-500">
+                        <span>
+                          {formatDate(post.createdAt)} • {post.author.name || post.author.username}
+                        </span>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-gray-600 line-clamp-3 mb-4">{post.excerpt}</p>
+
+                      {/* 태그 */}
+                      {post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mb-4">
+                          {post.tags.map(({ tag }) => (
+                            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                              {tag.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* 통계 */}
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <div className="flex items-center space-x-1">
+                          <Heart className="h-4 w-4" />
+                          <span>{post._count.likes}</span>
+                        </div>
+                        <div className="flex items-center space-x-1">
+                          <MessageCircle className="h-4 w-4" />
+                          <span>{post._count.comments}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Link>
+                </Card>
+              ))}
+            </div>
+
+            {hasMore && (
+              <div className="text-center mt-8">
+                <Button onClick={loadMore} variant="outline">
+                  더 불러오기
+                </Button>
+              </div>
+            )}
+          </>
+        )}
+      </main>
+    </>
+  );
+}
