@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
 import ThemeClient from './themeClient';
+import { DialogContainer } from '@/hooks/useDialog';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -17,8 +18,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className={inter.className}>
         <ThemeClient />
         <Providers>
-          <div className="min-h-screen bg-gray-50">{children}</div>
+          <div className="min-h-screen ">{children}</div>
         </Providers>
+        <DialogContainer />
       </body>
     </html>
   );

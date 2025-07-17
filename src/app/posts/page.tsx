@@ -8,7 +8,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/layout/header';
 import { formatDate } from '@/lib/utils';
-import { Search, Heart, MessageCircle } from 'lucide-react';
+import { Search, Heart, MessageCircle, PlusCircle } from 'lucide-react';
+import LikeButton from '@/components/posts/like-button';
+import { renderMarkdownToHtml } from '@/lib/markdown';
+import { useSession } from 'next-auth/react';
+import { useDialog } from '@/hooks/useDialog';
+import ConfirmDialog from '@/components/layout/confirmDialog';
+import { useRouter } from 'next/navigation';
 
 interface Post {
   id: string;
@@ -41,6 +47,10 @@ export default function PostsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+
+  const { data: session, status } = useSession();
+  const { openDialog } = useDialog();
+  const router = useRouter();
 
   const fetchPosts = async (pageNum: number = 1, searchTerm: string = '') => {
     try {
@@ -102,29 +112,56 @@ export default function PostsPage() {
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6">모든 포스트</h1>
+          <h1 className="text-3xl font-bold  mb-6">모든 포스트</h1>
 
-          {/* 검색 바 */}
-          <form onSubmit={handleSearchSubmit} className="relative max-w-md">
-            <Input type="text" placeholder="포스트 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pr-10" />
-            <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
-              <Search className="h-4 w-4" />
-            </button>
-          </form>
+          <div className="flex  justify-between ">
+            {/* 검색 바 */}
+            <form onSubmit={handleSearchSubmit} className="relative max-w-md">
+              <Input type="text" placeholder="포스트 검색..." value={search} onChange={(e) => setSearch(e.target.value)} className="pr-10" />
+              <button type="submit" className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+                <Search className="h-4 w-4" />
+              </button>
+            </form>
+            {!session && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    const result = await openDialog<boolean>(ConfirmDialog, {
+                      message: '로그인이 필요합니다.',
+                      confirmText: '로그인',
+                      btnType: 'double',
+                      position: 'center',
+                    });
+
+                    if (result) {
+                      router.push('/auth/signin');
+                    }
+                  } catch (e) {
+                    console.log(e);
+                  }
+                }}
+              >
+                <PlusCircle className="h-4 w-4 mr-2" />
+                글쓰기
+              </Button>
+            )}
+          </div>
         </div>
 
         {posts.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">아직 포스트가 없습니다.</p>
-            <p className="text-gray-400 mt-2">첫 번째 포스트를 작성해보세요!</p>
+            <p className=" text-lg">아직 포스트가 없습니다.</p>
+            <p className=" mt-2">첫 번째 포스트를 작성해보세요!</p>
           </div>
         ) : (
           <>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
               {posts.map((post) => (
-                <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                  <Link href={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors">
-                    <CardHeader>
+                <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
+                  <Link href={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors flex flex-col h-full">
+                    <CardHeader className="flex-shrink-0">
                       <CardTitle className="line-clamp-2">{post.title}</CardTitle>
                       <div className="flex items-center justify-between text-sm text-gray-500">
                         <span>
@@ -132,9 +169,8 @@ export default function PostsPage() {
                         </span>
                       </div>
                     </CardHeader>
-                    <CardContent>
-                      <p className="text-gray-600 line-clamp-3 mb-4">{post.excerpt}</p>
-
+                    <CardContent className="flex flex-col flex-grow pt-0">
+                      <p className="text-gray-600 line-clamp-3 mb-4 " dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(post.excerpt) }} />
                       {/* 태그 */}
                       {post.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-4">
@@ -147,10 +183,9 @@ export default function PostsPage() {
                       )}
 
                       {/* 통계 */}
-                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                      <div className="flex items-center space-x-4 text-sm text-gray-500 pt-4 mt-auto" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center space-x-1">
-                          <Heart className="h-4 w-4" />
-                          <span>{post._count.likes}</span>
+                          <LikeButton postSlug={post.slug} initialLikeCount={post._count.likes} />
                         </div>
                         <div className="flex items-center space-x-1">
                           <MessageCircle className="h-4 w-4" />

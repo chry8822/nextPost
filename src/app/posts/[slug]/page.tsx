@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/layout/header';
+import CommentSection from '@/components/posts/comment-section';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { formatDate } from '@/lib/utils';
 import { Heart, MessageCircle, ArrowLeft, User } from 'lucide-react';
@@ -198,36 +199,8 @@ export default function PostDetailPage() {
             </CardContent>
           </Card>
 
-          {/* 댓글 섹션 (현재는 표시만) */}
-          {post.comments.length > 0 && (
-            <Card>
-              <CardHeader>
-                <h3 className="text-lg font-semibold">댓글 ({post._count.comments})</h3>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {post.comments.map((comment) => (
-                    <div key={comment.id} className="border-b border-gray-100 pb-4 last:border-b-0">
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                            <User className="h-4 w-4 text-gray-600" />
-                          </div>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center space-x-2 mb-1">
-                            <span className="font-medium text-sm">{comment.author.name || comment.author.username}</span>
-                            <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
-                          </div>
-                          <p className="text-gray-700 text-sm">{comment.content}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* 댓글 섹션 */}
+          <CommentSection postSlug={post.slug} initialComments={post.comments} commentCount={post._count.comments} />
         </div>
       </main>
     </>

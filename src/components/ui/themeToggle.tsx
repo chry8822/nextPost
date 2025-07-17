@@ -21,7 +21,7 @@ export default function ThemeToggle() {
   };
 
   return (
-    <Button variant="outline" size="sm" onClick={toggleTheme}>
+    <Button variant="ghost" size="sm" onClick={toggleTheme}>
       {theme === 'dark' ? <span aria-hidden="true">🌙</span> : <span aria-hidden="true">☀️</span>}
       <span>{theme === 'dark' ? '라이트 모드' : '다크 모드'}</span>
     </Button>

@@ -8,6 +8,33 @@ marked.setOptions({
   pedantic: false,
 });
 
+const isMarkdown = (content: string): boolean => {
+  const trimmed = content.trim();
+
+  // 빈 문자열이면 마크다운이 아님
+  if (!trimmed) return false;
+
+  // 마크다운 패턴들
+  const patterns = [
+    /^#{1,6}\s+/m, // 헤더
+    /^\s*[-*+]\s+/m, // unordered list
+    /^\s*\d+\.\s+/m, // ordered list
+    /\*\*[^*\n]+\*\*/, // bold
+    /\*[^*\n]+\*/, // italic
+    /`[^`\n]+`/, // inline code
+    /```[\s\S]*?```/, // code block
+    /^\s*>/m, // blockquote
+    /\[.*?\]\(.*?\)/, // link
+    /!\[.*?\]\(.*?\)/, // image
+    /^\s*\|.*\|.*$/m, // table
+    /^\s*[-=]{3,}\s*$/m, // horizontal rule
+    /~~[^~\n]+~~/, // strikethrough
+  ];
+
+  // 하나라도 매치되면 마크다운으로 판단
+  return patterns.some((pattern) => pattern.test(trimmed));
+};
+
 // 마크다운 전처리 함수
 const preprocessMarkdown = (content: string) => {
   return content.replace(/^(#{1,6})([^\s#])/gm, '$1 $2'); // #text → # text
@@ -18,6 +45,11 @@ export const renderMarkdownToHtml = (content: string): string => {
   if (!content.trim()) return '';
 
   try {
+    if (!isMarkdown(content)) {
+      return content
+        .replace(/\n/g, '<br>') // 줄바꿈을 <br>로 변환
+        .replace(/  /g, '&nbsp;&nbsp;'); // 연속 공백 처리
+    }
     const processedContent = preprocessMarkdown(content);
     const html = marked.parse(processedContent) as string;
 

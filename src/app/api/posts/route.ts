@@ -22,6 +22,9 @@ export async function GET(request: Request) {
   const search = searchParams.get('search');
 
   try {
+    // 검색어 전처리 (대소문자 구분 없는 검색을 위해)
+    const searchTerm = search ? search.toLowerCase() : undefined;
+
     const where = {
       published: true,
       ...(tag && {
@@ -33,8 +36,8 @@ export async function GET(request: Request) {
           },
         },
       }),
-      ...(search && {
-        OR: [{ title: { contains: search, mode: 'insensitive' as const } }, { content: { contains: search, mode: 'insensitive' as const } }],
+      ...(searchTerm && {
+        OR: [{ title: { contains: searchTerm } }, { content: { contains: searchTerm } }],
       }),
     };
 
@@ -101,17 +104,10 @@ export async function POST(request: Request) {
     // 슬러그 생성 (제목을 기반으로)
     const slug = title
       .toLowerCase()
-      .trim()
-      // 한글, 영문, 숫자, 하이픈만 허용
       .replace(/[^\w\s가-힣-]/g, '')
-      // 연속된 공백을 하이픈으로
       .replace(/\s+/g, '-')
-      // 연속된 하이픈을 하나로
       .replace(/--+/g, '-')
-      // 시작/끝 하이픈 제거
-      .replace(/^-+|-+$/g, '')
-      // 최대 길이 제한 (SEO 고려)
-      .substring(0, 50);
+      .trim();
 
     // 슬러그 중복 확인 및 고유화
     let uniqueSlug = slug;
@@ -136,8 +132,8 @@ export async function POST(request: Request) {
             tags?.map((tagName) => ({
               tag: {
                 connectOrCreate: {
-                  where: { name: tagName },
-                  create: { name: tagName },
+                  where: { name: tagName.toLowerCase() }, // 태그도 소문자로 저장
+                  create: { name: tagName.toLowerCase() },
                 },
               },
             })) || [],
