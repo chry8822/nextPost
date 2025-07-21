@@ -16,6 +16,8 @@ import { useDialog } from '@/hooks/useDialog';
 import ConfirmDialog from '@/components/layout/confirmDialog';
 import { useRouter } from 'next/navigation';
 
+import { useKeenSlider } from 'keen-slider/react';
+import 'keen-slider/keen-slider.min.css';
 interface Post {
   id: string;
   title: string;
@@ -52,12 +54,33 @@ export default function PostsPage() {
   const { openDialog } = useDialog();
   const router = useRouter();
 
-  const fetchPosts = async (pageNum: number = 1, searchTerm: string = '') => {
+  const animation = { duration: 50000, easing: (t: any) => t };
+  const [sliderRef] = useKeenSlider<HTMLDivElement>({
+    loop: true,
+    mode: 'free-snap',
+    slides: {
+      perView: 'auto',
+      spacing: 0,
+    },
+    initial: 0,
+    created(s) {
+      s.moveToIdx(5, true, animation);
+    },
+    updated(s) {
+      s.moveToIdx(s.track.details.abs + 5, true, animation);
+    },
+    animationEnded(s) {
+      s.moveToIdx(s.track.details.abs + 5, true, animation);
+    },
+  });
+
+  const fetchPosts = async (pageNum: number = 1, searchTerm: string = '', tag: string = '') => {
     try {
       const params = new URLSearchParams({
         page: pageNum.toString(),
         limit: '10',
         ...(searchTerm && { search: searchTerm }),
+        ...(tag && { tag: tag }),
       });
 
       const response = await fetch(`/api/posts?${params}`);
@@ -82,10 +105,10 @@ export default function PostsPage() {
     fetchPosts(1, search);
   }, [search]);
 
-  const handleSearchSubmit = (e: React.FormEvent) => {
+  const handleSearchSubmit = (e: React.FormEvent, tag: string = '') => {
     e.preventDefault();
     setPage(1);
-    fetchPosts(1, search);
+    fetchPosts(1, search, tag);
   };
 
   const loadMore = () => {
@@ -157,13 +180,24 @@ export default function PostsPage() {
           </div>
         ) : (
           <>
-            <div className="mb-3">
+            <div ref={sliderRef} className="keen-slider">
               {posts
                 .flatMap((post) => post.tags)
-                .map((postTag) => (
-                  <Button className="mr-3" variant="outline">
-                    # {postTag?.tag?.name}
-                  </Button>
+                .map((postTag, index) => (
+                  <div
+                    key={`${postTag.tag.id}-${index}`}
+                    className={`keen-slider__slide number-slide${index + 1}`}
+                    style={{ width: 'auto', overflow: 'visible' }}
+                  >
+                    <Button
+                      className="mr-3 mb-3 cursor-pointer"
+                      variant="outline"
+                      key={`${postTag?.tag?.id}-${index}`}
+                      onClick={(e) => handleSearchSubmit(e, postTag?.tag?.name)}
+                    >
+                      # {postTag?.tag?.name}
+                    </Button>
+                  </div>
                 ))}
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
