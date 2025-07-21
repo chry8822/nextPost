@@ -132,8 +132,8 @@ export async function POST(request: Request) {
             tags?.map((tagName) => ({
               tag: {
                 connectOrCreate: {
-                  where: { name: tagName.toLowerCase() }, // 태그도 소문자로 저장
-                  create: { name: tagName.toLowerCase() },
+                  where: { name: tagName },
+                  create: { name: tagName },
                 },
               },
             })) || [],

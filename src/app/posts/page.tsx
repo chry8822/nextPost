@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/layout/header';
 import { formatDate } from '@/lib/utils';
-import { Search, Heart, MessageCircle, PlusCircle } from 'lucide-react';
+import { Search, Heart, MessageCircle, PlusCircle, Ghost } from 'lucide-react';
 import LikeButton from '@/components/posts/like-button';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { useSession } from 'next-auth/react';
@@ -157,6 +157,15 @@ export default function PostsPage() {
           </div>
         ) : (
           <>
+            <div className="mb-3">
+              {posts
+                .flatMap((post) => post.tags)
+                .map((postTag) => (
+                  <Button className="mr-3" variant="outline">
+                    # {postTag?.tag?.name}
+                  </Button>
+                ))}
+            </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
               {posts.map((post) => (
                 <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
