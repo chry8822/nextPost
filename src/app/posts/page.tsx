@@ -18,30 +18,7 @@ import { useRouter } from 'next/navigation';
 
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
-interface Post {
-  id: string;
-  title: string;
-  excerpt: string;
-  slug: string;
-  createdAt: string;
-  author: {
-    id: string;
-    name: string;
-    username: string;
-    avatar?: string;
-  };
-  tags: {
-    tag: {
-      id: string;
-      name: string;
-      color: string;
-    };
-  }[];
-  _count: {
-    comments: number;
-    likes: number;
-  };
-}
+import { Post } from './types';
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -218,7 +195,7 @@ export default function PostsPage() {
                       {post.tags.length > 0 && (
                         <div className="flex flex-wrap gap-2 mb-4">
                           {post.tags.map(({ tag }) => (
-                            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                            <span key={tag.id} className={`bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded bg-[${tag.color}]`}>
                               {tag.name}
                             </span>
                           ))}
@@ -228,11 +205,13 @@ export default function PostsPage() {
                       {/* 통계 */}
                       <div className="flex items-center space-x-4 text-sm text-gray-500 pt-4 mt-auto" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center space-x-1">
-                          <LikeButton postSlug={post.slug} initialLikeCount={post._count.likes} />
+                          <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
                         </div>
                         <div className="flex items-center space-x-1">
-                          <MessageCircle className="h-4 w-4" />
-                          <span>{post._count.comments}</span>
+                          <Button variant="noneBox" className="p-0">
+                            <MessageCircle className="h-4 w-4 mr-1" />
+                            <span>{post._count.comments}</span>
+                          </Button>
                         </div>
                       </div>
                     </CardContent>

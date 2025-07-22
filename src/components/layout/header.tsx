@@ -68,6 +68,10 @@ export default function Header() {
                 </Button>
 
                 <Button asChild variant="ghost" size="sm">
+                  <Link href="/dashboard">대시보드</Link>
+                </Button>
+
+                <Button asChild variant="ghost" size="sm">
                   <Link href={`/profile/${session.user.username}`}>
                     <User className="h-4 w-4 mr-2" />
                     {session.user.name || session.user.username}

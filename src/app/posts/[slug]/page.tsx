@@ -11,6 +11,7 @@ import CommentSection from '@/components/posts/comment-section';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { formatDate } from '@/lib/utils';
 import { Heart, MessageCircle, ArrowLeft, User } from 'lucide-react';
+import LikeButton from '@/components/posts/like-button';
 
 interface PostDetail {
   id: string;
@@ -18,6 +19,7 @@ interface PostDetail {
   content: string;
   excerpt: string;
   slug: string;
+  isLiked: boolean;
   createdAt: string;
   updatedAt: string;
   author: {
@@ -146,12 +148,13 @@ export default function PostDetailPage() {
 
                 <div className="flex items-center space-x-4 text-sm text-gray-500">
                   <div className="flex items-center space-x-1">
-                    <Heart className="h-4 w-4" />
-                    <span>{post._count.likes}</span>
+                    <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
                   </div>
                   <div className="flex items-center space-x-1">
-                    <MessageCircle className="h-4 w-4" />
-                    <span>{post._count.comments}</span>
+                    <Button variant="noneBox" className="p-0">
+                      <MessageCircle className="h-4 w-4 mr-1" />
+                      <span>{post._count.comments}</span>
+                    </Button>
                   </div>
                 </div>
               </div>
