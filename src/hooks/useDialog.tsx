@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 
 interface DialogBaseProps {
+  dialogId?: string; // ID 추가
   onConfirm: (result?: any) => void;
   onCancel: () => void;
 }
@@ -25,10 +26,10 @@ interface DialogState {
 export const useDialogStore = create<DialogState>((set, get) => ({
   dialogs: [],
 
-  openDialog: <TResult = any,>(component: React.ComponentType<DialogBaseProps & any>, props: Record<string, any> = {}): Promise<TResult> => {
-    return new Promise<TResult>((resolve, reject) => {
-      const id = `dialog-${Date.now()}-${Math.random()}`;
+  openDialog: <TResult = any,>(component: React.ComponentType<DialogBaseProps & any>, props: Record<string, any> = {}): Promise<TResult> & { id: string } => {
+    const id = `dialog-${Date.now()}-${Math.random()}`;
 
+    const promise = new Promise<TResult>((resolve, reject) => {
       set((state) => ({
         dialogs: [
           ...state.dialogs,
@@ -37,6 +38,8 @@ export const useDialogStore = create<DialogState>((set, get) => ({
             component,
             props: {
               ...props,
+              dialogId: id,
+              children: typeof props.children === 'function' ? props.children(id) : props.children,
               onConfirm: (result?: TResult) => {
                 resolve(result as TResult);
                 get().closeDialog(id);
@@ -58,7 +61,11 @@ export const useDialogStore = create<DialogState>((set, get) => ({
           dialogs: state.dialogs.map((dialog) => (dialog.id === id ? { ...dialog, open: true } : dialog)),
         }));
       }, 10);
-    });
+    }) as Promise<TResult> & { id: string };
+
+    // Promise에 id 속성 추가
+    (promise as any).id = id;
+    return promise as Promise<TResult> & { id: string };
   },
 
   closeDialog: (id: string) => {
@@ -66,7 +73,6 @@ export const useDialogStore = create<DialogState>((set, get) => ({
       dialogs: state.dialogs.map((dialog) => (dialog.id === id ? { ...dialog, open: false } : dialog)),
     }));
 
-    // 트랜지션 시간 후 제거
     setTimeout(() => {
       set((state) => ({
         dialogs: state.dialogs.filter((dialog) => dialog.id !== id),
@@ -76,8 +82,8 @@ export const useDialogStore = create<DialogState>((set, get) => ({
 }));
 
 export const useDialog = () => {
-  const { openDialog } = useDialogStore();
-  return { openDialog };
+  const { openDialog, closeDialog } = useDialogStore();
+  return { openDialog, closeDialog };
 };
 
 export const DialogContainer = () => {

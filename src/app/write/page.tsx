@@ -1,9 +1,9 @@
 // src/app/write/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -15,6 +15,8 @@ import { Eye, Save, Send } from 'lucide-react';
 export default function WritePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const editId = searchParams.get('edit');
 
   const [formData, setFormData] = useState({
     title: '',
@@ -24,6 +26,36 @@ export default function WritePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+
+  useEffect(() => {
+    if (!editId) return;
+
+    const fetchPostData = async () => {
+      setLoading(true);
+      try {
+        const response = await fetch(`/api/posts/edit/${editId}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || '포스트를 불러올 수 없습니다');
+        }
+
+        setFormData({
+          title: data.post.title,
+          content: data.post.content,
+          tags: data.post.tags.join(', '),
+        });
+        setIsEditing(true);
+      } catch (error) {
+        setError(error instanceof Error ? error.message : '포스트를 불러오는 중 오류가 발생했습니다');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPostData();
+  }, [editId]);
 
   // 로그인 체크
   if (status === 'loading') {

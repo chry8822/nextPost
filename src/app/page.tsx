@@ -14,10 +14,10 @@ export default function HomePage() {
       <main className="container mx-auto px-4 py-8">
         {/* 히어로 섹션 */}
         <section className="text-center py-12 mb-12">
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
+          <h1 className="text-5xl font-bold text-gray-900 mb-6 max-sm:text-3xl">
             개발자를 위한 <span className="text-blue-600">포스팅 플랫폼</span>
           </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 mb-8  mx-auto max-sm:text-base max-sm:px-4">
             기술 블로그를 작성하고, 다른 개발자들과 지식을 공유하며, 나만의 포트폴리오를 구축해보세요.
           </p>
           <div className="flex justify-center space-x-4">

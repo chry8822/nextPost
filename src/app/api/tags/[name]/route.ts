@@ -1,35 +1,35 @@
-// src/app/api/users/[username]/posts/route.ts
+// src/app/api/tags/[name]/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 
-export async function GET(request: Request, { params }: { params: { username: string } }) {
+export async function GET(request: Request, { params }: { params: { name: string } }) {
   const { searchParams } = new URL(request.url);
   const page = parseInt(searchParams.get('page') || '1');
   const limit = parseInt(searchParams.get('limit') || '10');
-  const showAll = searchParams.get('all') === 'true'; // 모든 포스트 보기 (임시저장 포함)
 
   try {
     const session = await getServerSession(authOptions);
+    const tagName = decodeURIComponent(params.name);
 
-    // 사용자 존재 확인
-    const user = await prisma.user.findUnique({
-      where: { username: params.username },
-      select: { id: true },
+    // 태그 존재 확인
+    const tag = await prisma.tag.findUnique({
+      where: { name: tagName },
+      select: { id: true, name: true, color: true },
     });
 
-    if (!user) {
-      return NextResponse.json({ error: '사용자를 찾을 수 없습니다' }, { status: 404 });
+    if (!tag) {
+      return NextResponse.json({ error: '태그를 찾을 수 없습니다' }, { status: 404 });
     }
 
-    // 본인인지 확인
-    const isOwner = session?.user?.id === user.id;
-
     const where = {
-      authorId: user.id,
-      // 본인이고 all=true인 경우 모든 포스트, 아니면 발행된 포스트만
-      ...(isOwner && showAll ? {} : { published: true }),
+      published: true,
+      tags: {
+        some: {
+          tagId: tag.id,
+        },
+      },
     };
 
     const [posts, total] = await Promise.all([
@@ -84,6 +84,7 @@ export async function GET(request: Request, { params }: { params: { username: st
     }));
 
     return NextResponse.json({
+      tag,
       posts: postsWithLikeStatus,
       pagination: {
         page,
@@ -93,7 +94,7 @@ export async function GET(request: Request, { params }: { params: { username: st
       },
     });
   } catch (error) {
-    console.error('User posts fetch error:', error);
+    console.error('Tag posts fetch error:', error);
     return NextResponse.json({ error: '포스트를 불러오는 중 오류가 발생했습니다' }, { status: 500 });
   }
 }

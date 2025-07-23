@@ -4,9 +4,10 @@
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, PlusCircle, Home } from 'lucide-react';
+import { User, LogOut, PlusCircle, Home, FileText, Tag } from 'lucide-react';
 import ThemeToggle from '../ui/themeToggle';
 import { useEffect, useState } from 'react';
+import { VerticalLine } from '../ui/lines';
 
 const HeaderLinkStyle = `py-2 px-3  rounded-md hover:bg-slate-100 hover:text-slate-900`;
 
@@ -28,6 +29,12 @@ export default function Header() {
     signOut({ callbackUrl: '/' });
   };
 
+  const navigationItems = [
+    { href: '/', label: '홈', icon: Home },
+    { href: '/posts', label: '포스트', icon: FileText },
+    { href: '/tags', label: '태그', icon: Tag },
+  ];
+
   return (
     <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white ${isScrolled ? 'shadow-sm' : ''}`}>
       <div className="container mx-auto px-4">
@@ -40,16 +47,12 @@ export default function Header() {
 
             {/* 네비게이션 메뉴 */}
             <nav className="hidden md:flex items-center ">
-              <Link href="/" className={`flex items-center transition-colors ${HeaderLinkStyle}`}>
-                <Home className="h-4 w-4 mr-2" />
-                <span>홈</span>
-              </Link>
-              <Link href="/posts" className={`transition-colors ${HeaderLinkStyle}`}>
-                포스트
-              </Link>
-              <Link href="/tags" className={`transition-colors ${HeaderLinkStyle}`}>
-                태그
-              </Link>
+              {navigationItems.map(({ href, label, icon: Icon }) => (
+                <Link key={href} href={href} className={`flex items-center transition-colors ${HeaderLinkStyle}`} title={label}>
+                  <Icon className="h-4 w-4 lg:mr-2" />
+                  <span className="hidden lg:inline">{label}</span>
+                </Link>
+              ))}
             </nav>
           </div>
 
@@ -60,26 +63,34 @@ export default function Header() {
             ) : session ? (
               // 로그인된 경우
               <div className="flex items-center space-x-3">
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
                   <Link href="/write">
                     <PlusCircle className="h-4 w-4 mr-2" />
                     글쓰기
                   </Link>
                 </Button>
+                <VerticalLine height={2} />
 
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
                   <Link href="/dashboard">대시보드</Link>
                 </Button>
+                <VerticalLine height={2} />
 
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
+                  <Link href="/my-posts">내 포스트</Link>
+                </Button>
+                <VerticalLine height={2} />
+
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
                   <Link href={`/profile/${session.user.username}`}>
                     <User className="h-4 w-4 mr-2" />
                     {session.user.name || session.user.username}
                   </Link>
                 </Button>
+                <VerticalLine height={2} />
 
-                <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4 mr-2" />
+                <Button variant="ghost" size="sm" className="m-0 px-1" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4 mr-2 " />
                   로그아웃
                 </Button>
 
