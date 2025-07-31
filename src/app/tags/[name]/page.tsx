@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import Header from '@/components/layout/header';
 import LikeButton from '@/components/posts/like-button';
 import { formatDate } from '@/lib/utils';
 import { Hash, ArrowLeft, Heart, MessageCircle } from 'lucide-react';
+import { BackButton } from '@/components/ui/backButton';
 
 interface Tag {
   id: string;
@@ -45,10 +46,15 @@ interface Post {
 
 export default function TagDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
+  const fromSearch = searchParams.get('from') === 'search';
+
   const [tag, setTag] = useState<Tag | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  console.log(searchParams);
 
   useEffect(() => {
     const fetchTagPosts = async () => {
@@ -114,12 +120,7 @@ export default function TagDetailPage() {
         <div className="max-w-4xl mx-auto">
           {/* 뒤로 가기 버튼 */}
           <div className="mb-6">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/tags">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                태그 목록으로
-              </Link>
-            </Button>
+            <BackButton moveType="tags" />
           </div>
 
           {/* 태그 정보 */}

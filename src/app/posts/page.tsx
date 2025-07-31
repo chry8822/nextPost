@@ -19,9 +19,11 @@ import { useRouter } from 'next/navigation';
 import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import { Post } from './types';
+import { Tag } from '@/types/types';
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [tags, setTags] = useState<Tag[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -51,6 +53,31 @@ export default function PostsPage() {
     },
   });
 
+  useEffect(() => {
+    const fetchTags = async () => {
+      try {
+        const response = await fetch('/api/tags');
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || '태그를 불러올 수 없습니다');
+        }
+
+        setTags(data.tags);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTags();
+  }, []);
+
+  useEffect(() => {
+    fetchPosts(1, search);
+  }, [search]);
+
   const fetchPosts = async (pageNum: number = 1, searchTerm: string = '', tag: string = '') => {
     try {
       const params = new URLSearchParams({
@@ -77,10 +104,6 @@ export default function PostsPage() {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchPosts(1, search);
-  }, [search]);
 
   const handleSearchSubmit = (e: React.FormEvent, tag: string = '') => {
     e.preventDefault();
@@ -158,24 +181,13 @@ export default function PostsPage() {
         ) : (
           <>
             <div ref={sliderRef} className="keen-slider">
-              {posts
-                .flatMap((post) => post.tags)
-                .map((postTag, index) => (
-                  <div
-                    key={`${postTag.tag.id}-${index}`}
-                    className={`keen-slider__slide number-slide${index + 1}`}
-                    style={{ width: 'auto', overflow: 'visible' }}
-                  >
-                    <Button
-                      className="mr-3 mb-3 cursor-pointer"
-                      variant="outline"
-                      key={`${postTag?.tag?.id}-${index}`}
-                      onClick={(e) => handleSearchSubmit(e, postTag?.tag?.name)}
-                    >
-                      # {postTag?.tag?.name}
-                    </Button>
-                  </div>
-                ))}
+              {tags.map((postTag, index) => (
+                <div key={`${postTag.id}-${index}`} className={`keen-slider__slide number-slide${index + 1}`} style={{ width: 'auto', overflow: 'visible' }}>
+                  <Button className="mr-3 mb-3 cursor-pointer" variant="outline" onClick={(e) => handleSearchSubmit(e, postTag?.name)}>
+                    # {postTag?.name}
+                  </Button>
+                </div>
+              ))}
             </div>
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
               {posts.map((post) => (

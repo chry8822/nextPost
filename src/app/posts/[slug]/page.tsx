@@ -12,6 +12,7 @@ import { renderMarkdownToHtml } from '@/lib/markdown';
 import { formatDate } from '@/lib/utils';
 import { Heart, MessageCircle, ArrowLeft, User } from 'lucide-react';
 import LikeButton from '@/components/posts/like-button';
+import { BackButton } from '@/components/ui/backButton';
 
 interface PostDetail {
   id: string;
@@ -121,12 +122,7 @@ export default function PostDetailPage() {
         <div className="max-w-4xl mx-auto">
           {/* 뒤로 가기 버튼 */}
           <div className="mb-6">
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/posts">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                포스트 목록으로
-              </Link>
-            </Button>
+            <BackButton moveType="posts" />
           </div>
 
           {/* 포스트 메타 정보 */}

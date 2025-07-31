@@ -4,12 +4,12 @@
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
-import { User, LogOut, PlusCircle, Home, FileText, Tag } from 'lucide-react';
+import { User, LogOut, PlusCircle, Home, FileText, Tag, Search } from 'lucide-react';
 import ThemeToggle from '../ui/themeToggle';
 import { useEffect, useState } from 'react';
 import { VerticalLine } from '../ui/lines';
 
-const HeaderLinkStyle = `py-2 px-3  rounded-md hover:bg-slate-100 hover:text-slate-900`;
+const HeaderLinkStyle = `py-2 px-2  rounded-md hover:bg-slate-100 hover:text-slate-900`;
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -30,7 +30,6 @@ export default function Header() {
   };
 
   const navigationItems = [
-    { href: '/', label: '홈', icon: Home },
     { href: '/posts', label: '포스트', icon: FileText },
     { href: '/tags', label: '태그', icon: Tag },
   ];
@@ -40,7 +39,7 @@ export default function Header() {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* 로고 */}
-          <div className="flex items-center space-x-8">
+          <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-2">
               <span className="text-2xl font-bold text-blue-600">DevSpace</span>
             </Link>
@@ -89,6 +88,14 @@ export default function Header() {
                 </Button>
                 <VerticalLine height={2} />
 
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
+                  <Link href="/search">
+                    <Search className="h-4 w-4 mr-2" />
+                    통합검색
+                  </Link>
+                </Button>
+
+                <VerticalLine height={2} />
                 <Button variant="ghost" size="sm" className="m-0 px-1" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2 " />
                   로그아웃

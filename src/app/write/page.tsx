@@ -11,12 +11,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import Header from '@/components/layout/header';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { Eye, Save, Send } from 'lucide-react';
+import { useDialog } from '@/hooks/useDialog';
+import ConfirmDialog from '@/components/layout/confirmDialog';
+import { title } from 'process';
 
 export default function WritePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get('edit');
+  const { openDialog, closeDialog } = useDialog();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -110,8 +114,16 @@ export default function WritePage() {
         throw new Error(data.error || '포스트 작성에 실패했습니다');
       }
 
-      alert(published ? '포스트가 발행되었습니다!' : '포스트가 임시저장되었습니다!');
-      router.push('/posts');
+      const result = await openDialog<boolean>(ConfirmDialog, {
+        title: '완료',
+        message: published ? '포스트가 발행되었습니다!' : '포스트가 임시저장되었습니다!',
+        confirmText: '확인',
+        position: 'center',
+      });
+
+      if (result) {
+        router.push('/posts');
+      }
     } catch (error) {
       setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다');
     } finally {

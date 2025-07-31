@@ -7,21 +7,47 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/layout/header';
 import { Hash, FileText } from 'lucide-react';
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string;
-  _count: {
-    posts: number;
-  };
-}
+import { Tag } from '@/types/types';
 
 export default function TagsPage() {
   const [tags, setTags] = useState<Tag[]>([]);
   const [totalPosts, setTotalPosts] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // 인기 태그 계산 (3단계 우선순위)
+  // 1순위: 포스트 수가 많은 것
+  // 2순위: 최신 포스트가 있는 것 (동일한 포스트 수일 때)
+  // 3순위: 알파벳 순 (포스트 수와 최신 날짜가 모두 동일할 때)
+  const mostPopularTag =
+    tags.length > 0
+      ? tags.reduce((prev, current) => {
+          // 1순위: 포스트 수 비교
+          if (current._count.posts !== prev._count.posts) {
+            return current._count.posts > prev._count.posts ? current : prev;
+          }
+
+          // 2순위: 최신 포스트 날짜 비교
+          const currentLatest = current.latestPostDate ? new Date(current.latestPostDate) : null;
+          const prevLatest = prev.latestPostDate ? new Date(prev.latestPostDate) : null;
+
+          // 둘 다 날짜가 있는 경우
+          if (currentLatest && prevLatest) {
+            if (currentLatest.getTime() !== prevLatest.getTime()) {
+              return currentLatest > prevLatest ? current : prev;
+            }
+          }
+          // 하나만 날짜가 있는 경우
+          else if (currentLatest && !prevLatest) {
+            return current;
+          } else if (!currentLatest && prevLatest) {
+            return prev;
+          }
+
+          // 3순위: 알파벳 순
+          return current.name.toLowerCase() < prev.name.toLowerCase() ? current : prev;
+        })
+      : null;
 
   useEffect(() => {
     const fetchTags = async () => {
@@ -132,7 +158,8 @@ export default function TagsPage() {
                       <Hash className="h-8 w-8 text-purple-600" />
                       <div className="ml-4">
                         <p className="text-sm font-medium text-gray-500">인기 태그</p>
-                        <p className="text-2xl font-bold">{tags[0]?.name || '-'}</p>
+                        <p className="text-2xl font-bold">{mostPopularTag?.name || '-'}</p>
+                        {mostPopularTag && <p className="text-xs text-gray-400">{mostPopularTag._count.posts}개 포스트</p>}
                       </div>
                     </div>
                   </CardContent>
