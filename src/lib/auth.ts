@@ -50,8 +50,15 @@ export const authOptions: NextAuthOptions = {
   ],
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30일
   },
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      alert(JSON.stringify(baseUrl));
+
+      return baseUrl; // '/' 로 이동
+    },
+
     async signIn({ user, account, profile }) {
       console.log('🔵 signIn 콜백 호출:', {
         provider: account?.provider,

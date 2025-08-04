@@ -8,6 +8,8 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Delete } from 'lucide-react';
+import { InputDeleteBtn } from '@/components/ui/inputDeleteBtn';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -20,14 +22,19 @@ export default function SignInPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const { data: session, status } = useSession();
 
-  console.log(session, status);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
     try {
+      if (formData.email.trim() === '' || formData.password.trim() === '') {
+        const errorText = formData.email.trim() === '' ? '이메일' : '비밀번호';
+
+        setError(`${errorText}을 입력해 주세요!`);
+        return;
+      }
+
       const result = await signIn('credentials', {
         email: formData.email,
         password: formData.password,
@@ -96,22 +103,20 @@ export default function SignInPage() {
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                   이메일
                 </label>
-                <Input id="email" name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="your@email.com" />
+                <div className="relative">
+                  <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} placeholder="your@email.com" />
+                  <InputDeleteBtn condition={!!formData.email} reset={() => setFormData({ ...formData, email: '' })} />
+                </div>
               </div>
 
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                   비밀번호
                 </label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleChange}
-                  placeholder="비밀번호를 입력하세요"
-                />
+                <div className="relative">
+                  <Input id="password" name="password" type="password" value={formData.password} onChange={handleChange} placeholder="비밀번호를 입력하세요" />
+                  <InputDeleteBtn condition={!!formData.password} reset={() => setFormData({ ...formData, password: '' })} />
+                </div>
               </div>
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? '로그인 중...' : '로그인'}
