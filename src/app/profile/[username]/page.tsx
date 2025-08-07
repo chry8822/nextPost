@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Header from '@/components/layout/header';
+
 import LikeButton from '@/components/posts/like-button';
 import { formatDate } from '@/lib/utils';
 import { User, Calendar, Globe, Github, Linkedin, FileText, Heart, MessageCircle, ArrowLeft } from 'lucide-react';
@@ -70,40 +70,32 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-gray-500">로딩 중...</div>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-slate-500 dark:text-slate-400">로딩 중...</div>
+        </div>
+      </main>
     );
   }
 
   if (error || !user) {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">{error || '사용자를 찾을 수 없습니다'}</h1>
-            <Button asChild variant="outline">
-              <Link href="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                홈으로 돌아가기
-              </Link>
-            </Button>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-4">{error || '사용자를 찾을 수 없습니다'}</h1>
+          <Button asChild variant="outline">
+            <Link href="/">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              홈으로 돌아가기
+            </Link>
+          </Button>
+        </div>
+      </main>
     );
   }
 
   return (
-    <>
-      <Header />
-      <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8">
         <div className="max-w-6xl mx-auto">
           {/* 뒤로 가기 버튼 */}
           <div className="mb-6">
@@ -124,13 +116,13 @@ export default function ProfilePage() {
                     <div className="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                       <User className="h-12 w-12 text-blue-600" />
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900">{user.name || user.username}</h1>
-                    <p className="text-gray-500">@{user.username}</p>
+                              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">{user.name || user.username}</h1>
+          <p className="text-slate-500 dark:text-slate-400">@{user.username}</p>
                   </div>
 
                   {user.bio && (
                     <div className="mb-6">
-                      <p className="text-gray-700 text-center">{user.bio}</p>
+                      <p className="text-slate-700 dark:text-slate-300 text-center">{user.bio}</p>
                     </div>
                   )}
 

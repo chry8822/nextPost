@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Header from '@/components/layout/header';
+
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { Eye, Save, Send } from 'lucide-react';
 import { useDialog } from '@/hooks/useDialog';
@@ -64,14 +64,11 @@ export default function WritePage() {
   // 로그인 체크
   if (status === 'loading') {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-gray-500">로딩 중...</div>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-slate-500">로딩 중...</div>
+        </div>
+      </main>
     );
   }
 
@@ -145,66 +142,64 @@ export default function WritePage() {
   };
 
   return (
-    <>
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">포스트 작성</h1>
-            <p className="text-gray-600">마크다운 문법을 지원합니다.</p>
-          </div>
+    <main className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-slate-900 mb-2">포스트 작성</h1>
+          <p className="text-slate-600">마크다운 문법을 지원합니다.</p>
+        </div>
 
-          <Card>
-            <CardHeader>
-              <div className="flex justify-between items-center">
-                <CardTitle>새 포스트</CardTitle>
-                <Button variant="outline" size="sm" onClick={() => setPreviewMode(!previewMode)}>
-                  <Eye className="h-4 w-4 mr-2" />
-                  {previewMode ? '편집' : '미리보기'}
-                </Button>
+        <Card>
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <CardTitle>새 포스트</CardTitle>
+              <Button variant="outline" size="sm" onClick={() => setPreviewMode(!previewMode)}>
+                <Eye className="h-4 w-4 mr-2" />
+                {previewMode ? '편집' : '미리보기'}
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
+
+            <div className="space-y-6">
+              {/* 제목 */}
+              <div>
+                <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-2">
+                  제목
+                </label>
+                <Input
+                  id="title"
+                  name="title"
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={handleChange}
+                  placeholder="포스트 제목을 입력하세요"
+                  disabled={loading}
+                />
               </div>
-            </CardHeader>
-            <CardContent>
-              {error && <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">{error}</div>}
 
-              <div className="space-y-6">
-                {/* 제목 */}
-                <div>
-                  <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
-                    제목
-                  </label>
-                  <Input
-                    id="title"
-                    name="title"
-                    type="text"
-                    required
-                    value={formData.title}
-                    onChange={handleChange}
-                    placeholder="포스트 제목을 입력하세요"
-                    disabled={loading}
+              {/* 내용 */}
+              <div>
+                <label htmlFor="content" className="block text-sm font-medium text-slate-700 mb-2">
+                  내용
+                </label>
+                {previewMode ? (
+                  <div
+                    className="min-h-[400px] w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-sm overflow-auto"
+                    dangerouslySetInnerHTML={{
+                      __html: renderPreview(formData.content),
+                    }}
                   />
-                </div>
-
-                {/* 내용 */}
-                <div>
-                  <label htmlFor="content" className="block text-sm font-medium text-gray-700 mb-2">
-                    내용
-                  </label>
-                  {previewMode ? (
-                    <div
-                      className="min-h-[400px] w-full rounded-md border border-slate-200 bg-white px-4 py-3 text-sm overflow-auto"
-                      dangerouslySetInnerHTML={{
-                        __html: renderPreview(formData.content),
-                      }}
-                    />
-                  ) : (
-                    <Textarea
-                      id="content"
-                      name="content"
-                      required
-                      value={formData.content}
-                      onChange={handleChange}
-                      placeholder="# 제목
+                ) : (
+                  <Textarea
+                    id="content"
+                    name="content"
+                    required
+                    value={formData.content}
+                    onChange={handleChange}
+                    placeholder="# 제목
 
 ## 소제목
 
@@ -214,44 +209,43 @@ export default function WritePage() {
 - **굵은 글씨**
 - *기울임 글씨*
 - `코드`"
-                      className="min-h-[400px] font-mono"
-                      disabled={loading}
-                    />
-                  )}
-                </div>
-
-                {/* 태그 */}
-                <div>
-                  <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                    태그
-                  </label>
-                  <Input
-                    id="tags"
-                    name="tags"
-                    type="text"
-                    value={formData.tags}
-                    onChange={handleChange}
-                    placeholder="React, JavaScript, Web (쉼표로 구분)"
+                    className="min-h-[400px] font-mono"
                     disabled={loading}
                   />
-                </div>
-
-                {/* 버튼들 */}
-                <div className="flex justify-end space-x-4">
-                  <Button variant="outline" onClick={() => handleSubmit(false)} disabled={loading}>
-                    <Save className="h-4 w-4 mr-2" />
-                    {loading ? '저장 중...' : '임시저장'}
-                  </Button>
-                  <Button onClick={() => handleSubmit(true)} disabled={loading}>
-                    <Send className="h-4 w-4 mr-2" />
-                    {loading ? '발행 중...' : '발행하기'}
-                  </Button>
-                </div>
+                )}
               </div>
-            </CardContent>
-          </Card>
-        </div>
-      </main>
-    </>
+
+              {/* 태그 */}
+              <div>
+                <label htmlFor="tags" className="block text-sm font-medium text-slate-700 mb-2">
+                  태그
+                </label>
+                <Input
+                  id="tags"
+                  name="tags"
+                  type="text"
+                  value={formData.tags}
+                  onChange={handleChange}
+                  placeholder="React, JavaScript, Web (쉼표로 구분)"
+                  disabled={loading}
+                />
+              </div>
+
+              {/* 버튼들 */}
+              <div className="flex justify-end space-x-4">
+                <Button variant="outline" onClick={() => handleSubmit(false)} disabled={loading}>
+                  <Save className="h-4 w-4 mr-2" />
+                  {loading ? '저장 중...' : '임시저장'}
+                </Button>
+                <Button onClick={() => handleSubmit(true)} disabled={loading}>
+                  <Send className="h-4 w-4 mr-2" />
+                  {loading ? '발행 중...' : '발행하기'}
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </main>
   );
 }

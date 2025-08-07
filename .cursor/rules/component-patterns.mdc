@@ -1,0 +1,181 @@
+---
+globs: *.tsx,*.ts
+description: Component development patterns and UI guidelines
+---
+
+# Component Development Standards
+
+## 🧩 COMPONENT ARCHITECTURE (STRICT ADHERENCE REQUIRED)
+
+### Component Hierarchy (NEVER VIOLATE)
+
+```
+UI Components (ui/)        ← Generic, reusable, zero business logic
+├── Feature Components     ← Domain-specific, business logic included
+├── Layout Components      ← App-wide layout elements
+└── Page Components        ← Top-level page containers
+```
+
+### 📁 File Naming Convention (MANDATORY)
+
+- **UI Components**: `kebab-case.tsx` (button.tsx, input.tsx)
+- **Feature Components**: `kebab-case.tsx` (post-card.tsx, user-profile.tsx)
+- **Page Components**: `page.tsx` (App Router convention)
+- **Layout Components**: `kebab-case.tsx` (header.tsx, footer.tsx)
+
+## 🎯 COMPONENT PATTERNS (FOLLOW EXACTLY)
+
+### UI Component Template (shadcn/ui pattern)
+
+```typescript
+import * as React from 'react';
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
+
+const componentVariants = cva(
+  'base-classes', // Base styling always required
+  {
+    variants: {
+      variant: {
+        default: 'default-variant-classes',
+        secondary: 'secondary-variant-classes',
+      },
+      size: {
+        default: 'default-size-classes',
+        sm: 'small-size-classes',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'default',
+    },
+  }
+);
+
+interface ComponentProps extends React.HTMLAttributes<HTMLElement>, VariantProps<typeof componentVariants> {
+  asChild?: boolean; // For Radix Slot pattern
+}
+
+const Component = React.forwardRef<HTMLElement, ComponentProps>(({ className, variant, size, asChild = false, ...props }, ref) => {
+  const Comp = asChild ? Slot : 'div'; // Default element
+  return <Comp className={cn(componentVariants({ variant, size, className }))} ref={ref} {...props} />;
+});
+Component.displayName = 'Component';
+
+export { Component, componentVariants };
+```
+
+### Feature Component Template
+
+```typescript
+'use client'; // Only if client-side features needed
+
+import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+interface FeatureComponentProps {
+  // Props with clear TypeScript interfaces
+  title: string;
+  data?: SomeDataType;
+  onAction?: () => void;
+}
+
+export default function FeatureComponent({ title, data, onAction }: FeatureComponentProps) {
+  const { data: session } = useSession();
+  const [state, setState] = useState<StateType>();
+
+  // Component logic here
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>{/* Component content */}</CardContent>
+    </Card>
+  );
+}
+```
+
+## 🚨 CRITICAL COMPONENT RULES
+
+### ❌ FORBIDDEN PRACTICES
+
+1. **NO** inline styles (use Tailwind classes only)
+2. **NO** CSS modules or styled-components
+3. **NO** default exports for UI components
+4. **NO** business logic in UI components
+5. **NO** direct database calls in components
+6. **NO** hardcoded colors (use Tailwind design tokens)
+7. **NO** custom CSS without design system approval
+
+### ✅ REQUIRED PRACTICES
+
+1. **ALWAYS** use forwardRef for UI components
+2. **ALWAYS** implement displayName for debugging
+3. **ALWAYS** use cn() utility for className merging
+4. **ALWAYS** follow the established variant pattern
+5. **ALWAYS** export named exports, not default
+6. **ALWAYS** use TypeScript interfaces for props
+7. **ALWAYS** implement proper error boundaries for complex components
+
+## 🎨 STYLING STANDARDS
+
+### Tailwind Class Organization
+
+```typescript
+// Order: Layout → Spacing → Typography → Colors → States
+className={cn(
+  "flex items-center justify-between", // Layout
+  "px-4 py-2 rounded-md",             // Spacing & borders
+  "text-sm font-medium",              // Typography
+  "bg-white text-slate-900",          // Colors
+  "hover:bg-slate-100 focus:ring-2", // States
+  className                            // Override classes
+)}
+```
+
+### Responsive Design Pattern
+
+```typescript
+// Mobile-first approach (MANDATORY)
+className = 'text-sm md:text-base lg:text-lg'; // ✅ Correct
+className = 'lg:text-lg md:text-base text-sm'; // ❌ Wrong order
+```
+
+## 🔗 COMPONENT COMPOSITION
+
+### Compound Component Pattern (for complex UI)
+
+```typescript
+const Card = ({ children, className, ...props }) => (
+  <div className={cn('card-base-classes', className)} {...props}>
+    {children}
+  </div>
+);
+
+const CardHeader = ({ children, className, ...props }) => (
+  <div className={cn('header-classes', className)} {...props}>
+    {children}
+  </div>
+);
+
+export { Card, CardHeader, CardTitle, CardContent };
+```
+
+### Composition over Inheritance
+
+- Use composition patterns for complex functionality
+- Prefer props over component inheritance
+- Use render props or children for flexible layouts
+
+## 📋 TESTING REQUIREMENTS
+
+- All UI components MUST be unit testable
+- Props MUST have clear TypeScript interfaces
+- Components MUST handle loading and error states
+- Accessibility (a11y) attributes MUST be included
+
+Remember: Every component is a building block of the user experience. Consistency and quality are non-negotiable.

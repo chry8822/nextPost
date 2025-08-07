@@ -1,0 +1,86 @@
+---
+alwaysApply: true
+---
+
+# DevSpace Project Architecture & Core Principles
+
+## 🎯 CONTEXT & MISSION
+
+You are working on **DevSpace**, a developer-focused blogging platform built with Next.js 15, TypeScript, Prisma, and NextAuth.js. This is a production-grade application that prioritizes type safety, performance, and maintainability.
+
+## 🏗️ PROJECT STRUCTURE (CRITICAL - NEVER DEVIATE)
+
+### Entry Points & Core Files
+
+- Root layout: [src/app/layout.tsx](mdc:src/app/layout.tsx)
+- Global styles: [src/app/globals.css](mdc:src/app/globals.css)
+- Database schema: [prisma/schema.prisma](mdc:prisma/schema.prisma)
+- Auth configuration: [src/lib/auth.ts](mdc:src/lib/auth.ts)
+- Database client: [src/lib/prisma.ts](mdc:src/lib/prisma.ts)
+
+### Directory Architecture (MANDATORY STRUCTURE)
+
+```
+src/
+├── app/                    # Next.js 15 App Router (ONLY pages & API routes)
+│   ├── api/               # API endpoints (route.ts files)
+│   ├── (pages)/           # Page components (page.tsx files)
+│   └── layout.tsx         # Root layout
+├── components/            # Reusable components (STRICTLY ORGANIZED)
+│   ├── layout/           # Layout-specific (header, footer, nav)
+│   ├── posts/            # Domain-specific (post-related only)
+│   └── ui/               # Generic UI primitives (button, input, card)
+├── hooks/                # Custom React hooks
+├── lib/                  # Utilities, configs, external integrations
+└── types/                # TypeScript type definitions
+```
+
+## ⚡ CRITICAL RULES (ZERO TOLERANCE)
+
+### 🚫 ABSOLUTE PROHIBITIONS
+
+1. **NEVER** create files outside the established directory structure
+2. **NEVER** use default exports for UI components (use named exports)
+3. **NEVER** import components with relative paths (always use @/ alias)
+4. **NEVER** create pages outside the app/ directory
+5. **NEVER** modify database schema without migration
+6. **NEVER** use any CSS framework other than Tailwind CSS
+7. **NEVER** create global state without Zustand
+8. **NEVER** handle forms without React Hook Form + Zod validation
+
+### ✅ MANDATORY REQUIREMENTS
+
+1. **ALWAYS** use TypeScript with strict mode
+2. **ALWAYS** use the established import order (React → Next.js → External → Internal → Types)
+3. **ALWAYS** use shadcn/ui patterns for UI components
+4. **ALWAYS** implement proper error handling in API routes
+5. **ALWAYS** use Prisma for database operations
+6. **ALWAYS** validate API inputs with Zod schemas
+7. **ALWAYS** use NextAuth.js for authentication
+
+## 🎨 DESIGN SYSTEM (NON-NEGOTIABLE)
+
+- **Base UI**: shadcn/ui components with class-variance-authority
+- **Styling**: Tailwind CSS 4 with CSS variables
+- **Icons**: Lucide React (exclusively)
+- **Fonts**: Inter (already configured)
+- **Color Palette**: Slate-based design tokens
+
+## 📋 TASK EXECUTION PROTOCOL
+
+### Before Any Code Change:
+
+1. **ANALYZE**: Understand the existing pattern in similar files
+2. **VALIDATE**: Ensure change aligns with project architecture
+3. **REFERENCE**: Check existing implementations for consistency
+4. **IMPLEMENT**: Follow established patterns exactly
+
+### For New Features:
+
+1. **SCHEMA**: Update Prisma schema if needed (with migration)
+2. **API**: Create type-safe API routes with Zod validation
+3. **COMPONENTS**: Build reusable components following UI patterns
+4. **PAGES**: Implement pages using established layout patterns
+5. **TYPES**: Define TypeScript interfaces for all data structures
+
+Remember: This is a PRODUCTION APPLICATION. Code quality, type safety, and architectural consistency are paramount. When in doubt, follow existing patterns exactly.

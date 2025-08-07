@@ -88,9 +88,11 @@ export default function LikeButton({ postSlug, initialLiked = false, initialLike
       size="sm"
       onClick={handleLikeToggle}
       disabled={loading}
-      className={`flex items-center space-x-2 p-0 ${liked ? '' : 'hover:bg-red-50 hover:text-red-600 hover:border-red-200'}`}
+      className={`flex items-center space-x-2 p-0 ${
+        liked ? '' : 'hover:bg-red-50 dark:hover:bg-red-950 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800'
+      }`}
     >
-      <Heart className={`h-4 w-4 `} color={`${liked ? '#ff0000' : '#101828'}`} />
+      <Heart className={`h-4 w-4 transition-colors ${liked ? 'text-red-500 fill-red-500' : 'text-gray-500 dark:text-gray-400 hover:text-red-500'}`} />
       <span>{likeCount}</span>
     </Button>
   );

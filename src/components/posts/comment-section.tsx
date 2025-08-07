@@ -116,8 +116,8 @@ export default function CommentSection({ postSlug, initialComments, commentCount
             </div>
           </form>
         ) : (
-          <div className="mb-6 p-4 bg-gray-50 rounded-lg text-center">
-            <p className="text-gray-600 mb-2">댓글을 작성하려면 로그인해주세요</p>
+          <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg text-center transition-colors">
+            <p className="text-slate-600 dark:text-slate-300 mb-2">댓글을 작성하려면 로그인해주세요</p>
             <div className="space-x-2">
               <Button asChild variant="outline" size="sm">
                 <Link href="/auth/signin">로그인</Link>
@@ -132,24 +132,27 @@ export default function CommentSection({ postSlug, initialComments, commentCount
         {/* 댓글 목록 */}
         <div className="space-y-4">
           {comments.length === 0 ? (
-            <div className="text-center py-8 text-gray-500">아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</div>
+            <div className="text-center py-8 text-slate-500 dark:text-slate-400">아직 댓글이 없습니다. 첫 번째 댓글을 작성해보세요!</div>
           ) : (
             comments.map((comment) => (
-              <div key={comment.id} className="border-b border-gray-100 pb-4 last:border-b-0">
+              <div key={comment.id} className="border-b border-gray-100 dark:border-gray-700 pb-4 last:border-b-0 transition-colors">
                 <div className="flex items-start space-x-3">
                   <div className="flex-shrink-0">
-                    <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-gray-600" />
+                    <div className="w-8 h-8 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center transition-colors">
+                      <User className="h-4 w-4 text-slate-600 dark:text-slate-300" />
                     </div>
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center space-x-2 mb-1">
-                      <Link href={`/profile/${comment.author.username}`} className="font-medium text-sm text-blue-600 hover:text-blue-500">
+                      <Link
+                        href={`/profile/${comment.author.username}`}
+                        className="font-medium text-sm text-blue-600 dark:text-blue-400 hover:text-blue-500 dark:hover:text-blue-300"
+                      >
                         {comment.author.name || comment.author.username}
                       </Link>
-                      <span className="text-xs text-gray-500">{formatDate(comment.createdAt)}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">{formatDate(comment.createdAt)}</span>
                     </div>
-                    <p className="text-gray-700 text-sm whitespace-pre-wrap">{comment.content}</p>
+                    <p className="text-slate-700 dark:text-slate-300 text-sm whitespace-pre-wrap">{comment.content}</p>
                   </div>
                 </div>
               </div>

@@ -4,6 +4,8 @@ import './globals.css';
 import { Providers } from './providers';
 import ThemeClient from './themeClient';
 import { DialogContainer } from '@/hooks/useDialog';
+import PageTransition from '@/components/layout/page-transition';
+import Header from '@/components/layout/header';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -15,10 +17,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body className={inter.className}>
+      <body className={`${inter.className} transition-colors`}>
         <ThemeClient />
         <Providers>
-          <div className="min-h-screen ">{children}</div>
+          <Header />
+          <PageTransition>
+            <div className="min-h-screen">{children}</div>
+          </PageTransition>
         </Providers>
         <DialogContainer />
       </body>

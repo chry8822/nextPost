@@ -8,8 +8,23 @@ import { User, LogOut, PlusCircle, Home, FileText, Tag, Search } from 'lucide-re
 import ThemeToggle from '../ui/themeToggle';
 import { useEffect, useState } from 'react';
 import { VerticalLine } from '../ui/lines';
+import { cva } from 'class-variance-authority';
+import { cn } from '@/lib/utils';
 
-const HeaderLinkStyle = `py-2 px-2  rounded-md hover:bg-slate-100 hover:text-slate-900`;
+// 🚀 현대적 방식: CVA로 스타일 variants 정의
+const headerStyles = cva('sticky top-0 z-50 w-full border-b border-slate-200 bg-white transition-all duration-300', {
+  variants: {
+    scrolled: {
+      true: 'shadow-sm',
+      false: '',
+    },
+  },
+  defaultVariants: {
+    scrolled: false,
+  },
+});
+
+const headerLinkStyles = cva('py-2 px-2 rounded-md transition-colors text-slate-700 hover:bg-slate-100 hover:text-slate-900 flex items-center');
 
 export default function Header() {
   const { data: session, status } = useSession();
@@ -35,19 +50,19 @@ export default function Header() {
   ];
 
   return (
-    <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white ${isScrolled ? 'shadow-sm' : ''}`}>
+    <header className={headerStyles({ scrolled: isScrolled })}>
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           {/* 로고 */}
           <div className="flex items-center space-x-4">
             <Link href="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-blue-600">DevSpace</span>
+              <span className="text-2xl font-bold text-blue-600 transition-colors">DevSpace</span>
             </Link>
 
             {/* 네비게이션 메뉴 */}
-            <nav className="hidden md:flex items-center ">
+            <nav className="flex items-center ">
               {navigationItems.map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} className={`flex items-center transition-colors ${HeaderLinkStyle}`} title={label}>
+                <Link key={href} href={href} className={headerLinkStyles()} title={label}>
                   <Icon className="h-4 w-4 lg:mr-2" />
                   <span className="hidden lg:inline">{label}</span>
                 </Link>
@@ -58,10 +73,12 @@ export default function Header() {
           {/* 우측 메뉴 */}
           <div className="flex items-center space-x-4">
             {status === 'loading' ? (
-              <div className="text-gray-500">로딩 중...</div>
+              <div className="text-slate-500">로딩 중...</div>
             ) : session ? (
               // 로그인된 경우
               <div className="flex items-center space-x-3">
+                <VerticalLine height={2} />
+
                 <Button asChild variant="ghost" size="sm" className="m-0 px-1">
                   <Link href="/write">
                     <PlusCircle className="h-4 w-4 mr-2" />
@@ -100,16 +117,14 @@ export default function Header() {
                   <LogOut className="h-4 w-4 mr-2 " />
                   로그아웃
                 </Button>
-
-                {/* <ThemeToggle /> */}
               </div>
             ) : (
               // 로그인되지 않은 경우
               <div className="flex items-center space-x-3">
-                <Button asChild variant="ghost" size="sm">
+                <Button asChild variant="ghost" size="sm" className="transition-all duration-200 hover:scale-105 hover:bg-blue-50 hover:text-blue-600 ">
                   <Link href="/auth/signin">로그인</Link>
                 </Button>
-                <Button asChild size="sm">
+                <Button asChild size="sm" className="transition-all duration-200 hover:scale-105 hover:shadow-md bg-blue-600 hover:bg-blue-700 ">
                   <Link href="/auth/signup">회원가입</Link>
                 </Button>
               </div>

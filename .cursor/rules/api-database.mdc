@@ -1,0 +1,329 @@
+---
+globs: **/api/**/*.ts,**/lib/**/*.ts,*.prisma
+description: API development and database interaction standards
+---
+
+# API Development & Database Standards
+
+## 🛡️ API ROUTE ARCHITECTURE (ZERO COMPROMISE)
+
+### Route Structure Template (MANDATORY)
+
+```typescript
+// src/app/api/[resource]/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { z } from 'zod';
+
+// 1. VALIDATION SCHEMAS (Always define first)
+const createResourceSchema = z.object({
+  title: z.string().min(1, 'Title is required'),
+  content: z.string().min(1, 'Content is required'),
+  published: z.boolean().default(false),
+});
+
+const updateResourceSchema = createResourceSchema.partial();
+
+// 2. GET HANDLER
+export async function GET(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+
+    // Pagination logic here
+    const resources = await prisma.resource.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json({
+      data: resources,
+      pagination: { page, limit, total: await prisma.resource.count() },
+    });
+  } catch (error) {
+    console.error('GET /api/resource error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+// 3. POST HANDLER (with auth)
+export async function POST(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const validatedData = createResourceSchema.parse(body);
+
+    const resource = await prisma.resource.create({
+      data: {
+        ...validatedData,
+        authorId: session.user.id,
+      },
+    });
+
+    return NextResponse.json(resource, { status: 201 });
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ error: 'Validation failed', details: error.errors }, { status: 400 });
+    }
+
+    console.error('POST /api/resource error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  }
+}
+```
+
+## 🗃️ DATABASE PATTERNS (PRISMA STRICT RULES)
+
+### Schema Design Principles (NON-NEGOTIABLE)
+
+```prisma
+// prisma/schema.prisma
+
+// 1. Model naming: PascalCase
+// 2. Field naming: camelCase
+// 3. Table mapping: snake_case with @@map
+// 4. Relations: Always define both sides
+// 5. Constraints: Use @@unique for composite keys
+
+model User {
+  id          String   @id @default(cuid())    // Always use cuid() for IDs
+  email       String   @unique                 // Business-critical unique fields
+  username    String   @unique
+  name        String?                          // Optional fields with ?
+  createdAt   DateTime @default(now())        // Timestamp fields required
+  updatedAt   DateTime @updatedAt
+
+  // Relations (Always define cascade behavior)
+  posts       Post[]
+  comments    Comment[]
+  likes       Like[]
+
+  @@map("users")                               // Always map to snake_case
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  slug        String   @unique                 // SEO-friendly unique slug
+  content     String
+  published   Boolean  @default(false)        // Default values for booleans
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Foreign key relationships
+  authorId    String
+  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // Many-to-many through junction table
+  tags        PostTag[]
+  comments    Comment[]
+  likes       Like[]
+
+  @@map("posts")
+}
+
+// Junction table for many-to-many
+model PostTag {
+  id     String @id @default(cuid())
+  postId String
+  tagId  String
+
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, tagId])                    // Prevent duplicate relationships
+  @@map("post_tags")
+}
+```
+
+### Database Query Patterns (FOLLOW EXACTLY)
+
+```typescript
+// Always use proper error handling and type safety
+export async function getUserPosts(userId: string, page: number = 1, limit: number = 10) {
+  try {
+    const [posts, total] = await Promise.all([
+      prisma.post.findMany({
+        where: {
+          authorId: userId,
+          published: true,
+        },
+        include: {
+          author: {
+            select: {
+              id: true,
+              username: true,
+              avatar: true,
+            },
+          },
+          tags: {
+            include: {
+              tag: true,
+            },
+          },
+          _count: {
+            select: {
+              likes: true,
+              comments: true,
+            },
+          },
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.post.count({
+        where: {
+          authorId: userId,
+          published: true,
+        },
+      }),
+    ]);
+
+    return { posts, total, page, limit };
+  } catch (error) {
+    console.error('Database query error:', error);
+    throw new Error('Failed to fetch user posts');
+  }
+}
+```
+
+## 🔐 AUTHENTICATION PATTERNS
+
+### Session Validation (MANDATORY FOR PROTECTED ROUTES)
+
+```typescript
+export async function POST(request: NextRequest) {
+  // 1. Always validate session first
+  const session = await getServerSession(authOptions);
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+  }
+
+  // 2. Validate user permissions if needed
+  const user = await prisma.user.findUnique({
+    where: { id: session.user.id },
+  });
+
+  if (!user) {
+    return NextResponse.json({ error: 'User not found' }, { status: 404 });
+  }
+
+  // 3. Proceed with authorized operation
+  // ... rest of the logic
+}
+```
+
+## 🚨 CRITICAL API RULES
+
+### ❌ ABSOLUTE PROHIBITIONS
+
+1. **NEVER** expose sensitive data in API responses
+2. **NEVER** skip input validation (always use Zod)
+3. **NEVER** return raw Prisma errors to clients
+4. **NEVER** use SQL injection vulnerable patterns
+5. **NEVER** forget error handling and logging
+6. **NEVER** skip authentication for protected routes
+7. **NEVER** use GET requests for data mutations
+
+### ✅ MANDATORY REQUIREMENTS
+
+1. **ALWAYS** validate input with Zod schemas
+2. **ALWAYS** use NextResponse for consistent responses
+3. **ALWAYS** implement proper error handling
+4. **ALWAYS** log errors for debugging
+5. **ALWAYS** use transactions for multi-step operations
+6. **ALWAYS** implement rate limiting for public endpoints
+7. **ALWAYS** use select/include to limit returned data
+
+## 📊 RESPONSE STANDARDS
+
+### Consistent API Response Format
+
+```typescript
+// Success responses
+return NextResponse.json({
+  data: result,
+  message: 'Operation successful',
+  pagination: {
+    page: number,
+    limit: number,
+    total: number,
+  },
+});
+
+// Error responses
+return NextResponse.json(
+  {
+    error: 'Error message',
+    details: validationErrors,
+    code: 'ERROR_CODE',
+  },
+  { status: statusCode }
+);
+```
+
+### Status Code Standards
+
+- `200`: Success with data
+- `201`: Created successfully
+- `400`: Bad request (validation failed)
+- `401`: Unauthorized (no auth)
+- `403`: Forbidden (insufficient permissions)
+- `404`: Not found
+- `500`: Internal server error
+
+## 🔄 DATABASE TRANSACTION PATTERNS
+
+### Multi-step Operations (ALWAYS USE TRANSACTIONS)
+
+```typescript
+export async function createPostWithTags(postData: CreatePostData, tagNames: string[]) {
+  return await prisma.$transaction(async (tx) => {
+    // 1. Create or find tags
+    const tags = await Promise.all(
+      tagNames.map((name) =>
+        tx.tag.upsert({
+          where: { name },
+          update: {},
+          create: { name },
+        })
+      )
+    );
+
+    // 2. Create post
+    const post = await tx.post.create({
+      data: {
+        ...postData,
+        tags: {
+          create: tags.map((tag) => ({
+            tagId: tag.id,
+          })),
+        },
+      },
+    });
+
+    return post;
+  });
+}
+```
+
+Remember: APIs are your application's contract with the world. Security, performance, and consistency are paramount.

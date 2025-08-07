@@ -1,40 +1,156 @@
 @import 'tailwindcss';
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-/* @media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-} */
-/* 
-[data-theme='dark'] {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-}
-
-[data-theme='light'] {
-  --background: #ffffff;
-  --foreground: #171717;
-} */
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 .swiper-slide {
+  width: auto;
+}
+
+/* Custom scale utilities for smooth animations */
+.scale-98 {
+  transform: scale(0.98);
+}
+
+.scale-95 {
+  transform: scale(0.95);
+}
+
+/* Ensure smooth transitions with transform-gpu */
+.transform-gpu {
+  transform: translateZ(0);
+}
+
+/* Page transition base styles */
+.page-transition {
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+}
+
+/* 페이지 전환 키프레임 애니메이션 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* 👆 스크롤 다운 유도 애니메이션 */
+@keyframes bounce-slow {
+  0%,
+  100% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(-8px);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+
+@keyframes scroll-prompt {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(8px) scale(1.1);
+    opacity: 0.7;
+  }
+}
+
+@keyframes chevron-cascade {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
+}
+
+/* 애니메이션 클래스 */
+.animate-bounce-slow {
+  animation: bounce-slow 3s infinite;
+}
+
+.animate-scroll-prompt {
+  animation: scroll-prompt 2s ease-in-out infinite;
+}
+
+.animate-chevron-cascade {
+  animation: chevron-cascade 1.5s ease-in-out infinite;
+}
+
+.animate-chevron-cascade-delay-1 {
+  animation: chevron-cascade 1.5s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+.animate-chevron-cascade-delay-2 {
+  animation: chevron-cascade 1.5s ease-in-out infinite;
+  animation-delay: 0.4s;
+}
+
+/* 마우스 아이콘 스크롤 핸들 애니메이션 */
+.mouse-scroll {
+  position: relative;
+}
+
+.mouse-scroll::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 8px;
+  background: white;
+  border-radius: 1px;
+  animation: mouse-wheel 2s ease-in-out infinite;
+}
+
+@keyframes mouse-wheel {
+  0% {
+    transform: translate(-50%, -80%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -20%);
+    opacity: 0;
+  }
+}
+
+/* 기술 아이템 호버 효과 */
+.tech-item {
+  transition: all 0.3s ease;
+}
+
+.tech-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Keen Slider 커스터마이지션 */
+.keen-slider {
+  overflow: visible !important;
+}
+
+.keen-slider__slide {
+  min-width: auto !important;
   width: auto !important;
 }

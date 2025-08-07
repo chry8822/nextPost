@@ -1,0 +1,209 @@
+---
+globs: *.ts,*.tsx
+description: Import organization and file structure standards
+---
+
+# Import Organization & File Structure Standards
+
+## 📥 IMPORT ORDER (MANDATORY SEQUENCE)
+
+### The Sacred Import Order (NEVER DEVIATE)
+
+```typescript
+// 1. REACT & REACT ECOSYSTEM (Top Priority)
+import React, { useState, useEffect, useCallback } from 'react';
+import { type ReactNode, type FC } from 'react';
+
+// 2. NEXT.JS CORE (Framework Level)
+import Link from 'next/link';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+
+// 3. EXTERNAL LIBRARIES (Third Party)
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { cva, type VariantProps } from 'class-variance-authority';
+
+// 4. INTERNAL COMPONENTS (Project Specific)
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Header from '@/components/layout/header';
+
+// 5. UTILITIES & CONFIGURATIONS (Helpers)
+import { cn } from '@/lib/utils';
+import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/lib/auth';
+
+// 6. TYPES (Always Last)
+import type { User, Post, Comment } from '@/types';
+import type { NextAuthOptions } from 'next-auth';
+```
+
+## 🎯 PATH RESOLUTION RULES
+
+### ✅ REQUIRED PATH PATTERNS
+
+```typescript
+// Internal imports MUST use absolute paths with @/ alias
+import { Button } from '@/components/ui/button'; // ✅ Correct
+import { prisma } from '@/lib/prisma'; // ✅ Correct
+import type { User } from '@/types'; // ✅ Correct
+
+// Relative imports ONLY for same-directory files
+import { validateInput } from './validation'; // ✅ Acceptable
+```
+
+### ❌ FORBIDDEN PATH PATTERNS
+
+```typescript
+// NEVER use relative paths for different directories
+import { Button } from '../../../components/ui/button'; // ❌ Forbidden
+import { prisma } from '../../lib/prisma'; // ❌ Forbidden
+
+// NEVER import from index files directly
+import { Button } from '@/components/ui'; // ❌ Forbidden
+```
+
+## 📁 FILE ORGANIZATION STANDARDS
+
+### Directory Structure Compliance
+
+```
+src/
+├── components/
+│   ├── ui/              # Generic UI components (button, input, card)
+│   ├── layout/          # Layout components (header, footer, nav)
+│   └── [domain]/        # Feature-specific (posts, auth, dashboard)
+├── app/
+│   ├── (routes)/        # Page components
+│   └── api/             # API route handlers
+├── lib/                 # Utilities, configs, external integrations
+├── hooks/               # Custom React hooks
+├── types/               # TypeScript definitions
+└── styles/              # Global styles (minimal usage)
+```
+
+### File Naming Conventions (STRICT)
+
+```typescript
+// Component files: kebab-case.tsx
+button.tsx, post - card.tsx, user - profile.tsx;
+
+// Page files: page.tsx (App Router convention)
+app / posts / page.tsx, app / dashboard / page.tsx;
+
+// API routes: route.ts (App Router convention)
+app / api / posts / route.ts, app / api / auth / [...nextauth] / route.ts;
+
+// Utility files: camelCase.ts or kebab-case.ts
+utils.ts, auth - helpers.ts, validation - schemas.ts;
+
+// Type files: camelCase.ts or descriptive names
+index.ts, userTypes.ts, apiTypes.ts;
+```
+
+## 🔄 EXPORT PATTERNS
+
+### Component Exports (MANDATORY)
+
+```typescript
+// UI Components: Named exports only
+export { Button, buttonVariants };
+export { Card, CardHeader, CardTitle, CardContent };
+
+// Feature Components: Default exports acceptable
+export default function PostCard() {
+  /* ... */
+}
+
+// Utility functions: Named exports preferred
+export function cn(...inputs: ClassValue[]) {
+  /* ... */
+}
+export function formatDate(date: Date) {
+  /* ... */
+}
+
+// Types: Named exports only
+export interface User {
+  /* ... */
+}
+export type PostStatus = 'draft' | 'published';
+```
+
+### Re-export Patterns
+
+```typescript
+// Barrel exports for UI components (when needed)
+// components/ui/index.ts
+export { Button } from './button';
+export { Card, CardContent, CardHeader, CardTitle } from './card';
+export { Input } from './input';
+
+// But prefer direct imports in most cases
+import { Button } from '@/components/ui/button'; // ✅ Preferred
+import { Button } from '@/components/ui'; // ❌ Avoid
+```
+
+## 🎨 IMPORT GROUPING & SPACING
+
+### Visual Organization (REQUIRED)
+
+```typescript
+// React ecosystem
+import React, { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+
+// External libraries
+import { z } from 'zod';
+import { useForm } from 'react-hook-form';
+
+// Internal components
+import { Button } from '@/components/ui/button';
+import Header from '@/components/layout/header';
+
+// Utilities
+import { cn } from '@/lib/utils';
+import { prisma } from '@/lib/prisma';
+
+// Types
+import type { User, Post } from '@/types';
+```
+
+## 🚨 CRITICAL IMPORT RULES
+
+### ❌ FORBIDDEN PRACTICES
+
+1. **NO** wildcard imports (import \* as React)
+2. **NO** default imports for utilities
+3. **NO** circular dependencies
+4. **NO** importing components from page directories
+5. **NO** importing from node_modules directly in components
+6. **NO** mixing named and default imports from same module
+
+### ✅ REQUIRED PRACTICES
+
+1. **ALWAYS** group imports by category with blank lines
+2. **ALWAYS** sort imports alphabetically within groups
+3. **ALWAYS** use type-only imports for types
+4. **ALWAYS** use absolute paths for cross-directory imports
+5. **ALWAYS** prefer named imports over default imports
+6. **ALWAYS** place React imports first
+
+## 📋 TYPE IMPORT STANDARDS
+
+### TypeScript Import Patterns
+
+```typescript
+// Type-only imports (REQUIRED for types)
+import type { User, Post } from '@/types';
+import type { NextAuthOptions } from 'next-auth';
+import type { ReactNode, FC } from 'react';
+
+// Value + Type imports (when needed)
+import { type VariantProps, cva } from 'class-variance-authority';
+```
+
+Remember: Clean imports lead to maintainable code. This structure is your roadmap to consistency.

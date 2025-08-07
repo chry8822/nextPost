@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import Header from '@/components/layout/header';
+
 import LikeButton from '@/components/posts/like-button';
 import { formatDate } from '@/lib/utils';
 import { Search, FileText, User, Hash, ArrowRight, MessageCircle, Calendar } from 'lucide-react';
@@ -90,9 +90,7 @@ export default function SearchPage() {
   console.log(results);
 
   return (
-    <>
-      <Header />
-      <main className="container mx-auto px-4 py-8">
+    <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           {/* 검색 헤더 */}
           <div className="mb-8">
@@ -171,7 +169,7 @@ export default function SearchPage() {
               {/* 포스트 결과 */}
               {(activeTab === 'all' || activeTab === 'posts') && results.posts.length > 0 && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
                     <FileText className="h-5 w-5 mr-2" />
                     포스트 ({results.posts.length})
                   </h2>
@@ -220,7 +218,7 @@ export default function SearchPage() {
               {/* 사용자 결과 */}
               {(activeTab === 'all' || activeTab === 'users') && results.users.length > 0 && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
                     <User className="h-5 w-5 mr-2" />
                     사용자 ({results.users.length})
                   </h2>
@@ -254,7 +252,7 @@ export default function SearchPage() {
               {/* 태그 결과 */}
               {(activeTab === 'all' || activeTab === 'tags') && results.tags.length > 0 && (
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center">
+                  <h2 className="text-xl font-bold text-slate-900 mb-4 flex items-center">
                     <Hash className="h-5 w-5 mr-2" />
                     태그 ({results.tags.length})
                   </h2>
@@ -281,9 +279,9 @@ export default function SearchPage() {
               {/* 결과 없음 */}
               {results.total === 0 && (
                 <div className="text-center py-12">
-                  <Search className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">검색 결과가 없습니다</h3>
-                  <p className="text-gray-500 mb-4">다른 검색어를 시도해보세요.</p>
+                            <Search className="h-12 w-12 mx-auto mb-4 text-slate-300" />
+          <h3 className="text-lg font-medium text-slate-900 mb-2">검색 결과가 없습니다</h3>
+          <p className="text-slate-500 mb-4">다른 검색어를 시도해보세요.</p>
                   <Button onClick={() => setQuery('')} variant="outline">
                     검색어 지우기
                   </Button>

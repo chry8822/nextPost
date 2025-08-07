@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Header from '@/components/layout/header';
+
 import CommentSection from '@/components/posts/comment-section';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { formatDate } from '@/lib/utils';
@@ -85,123 +85,114 @@ export default function PostDetailPage() {
 
   if (loading) {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-gray-500">로딩 중...</div>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-gray-500">로딩 중...</div>
+        </div>
+      </main>
     );
   }
 
   if (error || !post) {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">{error || '포스트를 찾을 수 없습니다'}</h1>
-            <Button asChild variant="outline">
-              <Link href="/posts">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                포스트 목록으로 돌아가기
-              </Link>
-            </Button>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{error || '포스트를 찾을 수 없습니다'}</h1>
+          <Button asChild variant="outline">
+            <Link href="/posts">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              포스트 목록으로 돌아가기
+            </Link>
+          </Button>
+        </div>
+      </main>
     );
   }
 
   return (
-    <>
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* 뒤로 가기 버튼 */}
-          <div className="mb-6">
-            <BackButton moveType="posts" />
-          </div>
-
-          {/* 포스트 메타 정보 */}
-          <Card className="mb-8">
-            <CardHeader>
-              <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
-
-              <div className="flex items-center justify-between flex-wrap gap-4">
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <User className="h-4 w-4 text-gray-400" />
-                    <Link href={`/profile/${post.author.username}`} className="text-blue-600 hover:text-blue-500 font-medium">
-                      {post.author.name || post.author.username}
-                    </Link>
-                  </div>
-                  <span className="text-gray-500">•</span>
-                  <span className="text-gray-500">{formatDate(post.createdAt)}</span>
-                </div>
-
-                <div className="flex items-center space-x-4 text-sm text-gray-500">
-                  <div className="flex items-center space-x-1">
-                    <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Button variant="noneBox" className="p-0">
-                      <MessageCircle className="h-4 w-4 mr-1" />
-                      <span>{post._count.comments}</span>
-                    </Button>
-                  </div>
-                </div>
-              </div>
-
-              {/* 태그 */}
-              {post.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-4">
-                  {post.tags.map(({ tag }) => (
-                    <span key={tag.id} className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
-                      {tag.name}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </CardHeader>
-          </Card>
-
-          {/* 포스트 내용 */}
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <div
-                className="prose max-w-none"
-                dangerouslySetInnerHTML={{
-                  __html: renderMarkdownToHtml(post.content),
-                }}
-              />
-            </CardContent>
-          </Card>
-
-          {/* 작성자 정보 */}
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <div className="flex items-start space-x-4">
-                <div className="flex-shrink-0">
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <User className="h-6 w-6 text-blue-600" />
-                  </div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900">{post.author.name || post.author.username}</h3>
-                  <p className="text-sm text-gray-500 mb-2">@{post.author.username}</p>
-                  {post.author.bio && <p className="text-gray-600">{post.author.bio}</p>}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* 댓글 섹션 */}
-          <CommentSection postSlug={post.slug} initialComments={post.comments} commentCount={post._count.comments} />
+    <main className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* 뒤로 가기 버튼 */}
+        <div className="mb-6">
+          <BackButton moveType="posts" />
         </div>
-      </main>
-    </>
+
+        {/* 포스트 메타 정보 */}
+        <Card className="mb-8">
+          <CardHeader>
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{post.title}</h1>
+
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <User className="h-4 w-4 text-gray-400" />
+                  <Link href={`/profile/${post.author.username}`} className="text-blue-600 hover:text-blue-500 font-medium">
+                    {post.author.name || post.author.username}
+                  </Link>
+                </div>
+                <span className="text-gray-500 dark:text-gray-400">•</span>
+                <span className="text-gray-500 dark:text-gray-400">{formatDate(post.createdAt)}</span>
+              </div>
+
+              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                <div className="flex items-center space-x-1">
+                  <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
+                </div>
+                <div className="flex items-center space-x-1">
+                  <Button variant="noneBox" className="p-0">
+                    <MessageCircle className="h-4 w-4 mr-1" />
+                    <span>{post._count.comments}</span>
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* 태그 */}
+            {post.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-4">
+                {post.tags.map(({ tag }) => (
+                  <span key={tag.id} className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-sm px-3 py-1 rounded-full transition-colors">
+                    {tag.name}
+                  </span>
+                ))}
+              </div>
+            )}
+          </CardHeader>
+        </Card>
+
+        {/* 포스트 내용 */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div
+              className="prose max-w-none prose-slate dark:prose-invert"
+              dangerouslySetInnerHTML={{
+                __html: renderMarkdownToHtml(post.content),
+              }}
+            />
+          </CardContent>
+        </Card>
+
+        {/* 작성자 정보 */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="flex items-start space-x-4">
+              <div className="flex-shrink-0">
+                <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <User className="h-6 w-6 text-blue-600" />
+                </div>
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{post.author.name || post.author.username}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">@{post.author.username}</p>
+                {post.author.bio && <p className="text-gray-600 dark:text-gray-300">{post.author.bio}</p>}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 댓글 섹션 */}
+        <CommentSection postSlug={post.slug} initialComments={post.comments} commentCount={post._count.comments} />
+      </div>
+    </main>
   );
 }

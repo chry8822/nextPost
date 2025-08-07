@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import Header from '@/components/layout/header';
+
 import { formatDate } from '@/lib/utils';
 import { FileText, Eye, EyeOff, Edit, Trash2, Filter } from 'lucide-react';
 import { useDialog } from '@/hooks/useDialog';
@@ -132,142 +132,131 @@ export default function MyPostsPage() {
 
   if (status === 'loading' || loading) {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="flex justify-center items-center min-h-[400px]">
-            <div className="text-gray-500">로딩 중...</div>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center min-h-[400px]">
+          <div className="text-gray-500">로딩 중...</div>
+        </div>
+      </main>
     );
   }
 
   if (error) {
     return (
-      <>
-        <Header />
-        <main className="container mx-auto px-4 py-8">
-          <div className="text-center py-12">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">{error}</h1>
-            <Button onClick={() => window.location.reload()}>다시 시도</Button>
-          </div>
-        </main>
-      </>
+      <main className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{error}</h1>
+          <Button onClick={() => window.location.reload()}>다시 시도</Button>
+        </div>
+      </main>
     );
   }
 
   return (
-    <>
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          {/* 헤더 */}
-          <div className="flex justify-between items-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <FileText className="h-8 w-8 mr-3" />내 포스트 관리
-            </h1>
-            <Button asChild>
-              <Link href="/write">새 포스트 작성</Link>
-            </Button>
-          </div>
+    <main className="container mx-auto px-4 py-8">
+      <div className="max-w-4xl mx-auto">
+        {/* 헤더 */}
+        <div className="flex justify-between items-center mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 flex items-center">
+            <FileText className="h-8 w-8 mr-3" />내 포스트 관리
+          </h1>
+          <Button asChild>
+            <Link href="/write">새 포스트 작성</Link>
+          </Button>
+        </div>
 
-          {/* 필터 */}
-          <div className="flex space-x-2 mb-6">
-            <Button variant={filter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('all')}>
-              전체 ({posts.length})
-            </Button>
-            <Button variant={filter === 'published' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('published')}>
-              <Eye className="h-4 w-4 mr-1" />
-              발행됨 ({posts.filter((p) => p.published).length})
-            </Button>
-            <Button variant={filter === 'draft' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('draft')}>
-              <EyeOff className="h-4 w-4 mr-1" />
-              임시저장 ({posts.filter((p) => !p.published).length})
-            </Button>
-          </div>
+        {/* 필터 */}
+        <div className="flex space-x-2 mb-6">
+          <Button variant={filter === 'all' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('all')}>
+            전체 ({posts.length})
+          </Button>
+          <Button variant={filter === 'published' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('published')}>
+            <Eye className="h-4 w-4 mr-1" />
+            발행됨 ({posts.filter((p) => p.published).length})
+          </Button>
+          <Button variant={filter === 'draft' ? 'default' : 'outline'} size="sm" onClick={() => setFilter('draft')}>
+            <EyeOff className="h-4 w-4 mr-1" />
+            임시저장 ({posts.filter((p) => !p.published).length})
+          </Button>
+        </div>
 
-          {/* 포스트 목록 */}
-          {filteredPosts.length === 0 ? (
-            <Card>
-              <CardContent className="pt-6">
-                <div className="text-center py-12 text-gray-500">
-                  <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                  <p className="mb-4">
-                    {filter === 'published' && '발행된 포스트가 없습니다.'}
-                    {filter === 'draft' && '임시저장된 포스트가 없습니다.'}
-                    {filter === 'all' && '작성한 포스트가 없습니다.'}
-                  </p>
-                  <Button asChild>
-                    <Link href="/write">첫 포스트 작성하기</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-4">
-              {filteredPosts.map((post) => (
-                <Card key={post.id} className="hover:shadow-lg transition-shadow">
-                  <CardContent className="pt-6">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <h3 className="text-lg font-semibold">{post.title}</h3>
-                          <span
-                            className={`px-2 py-1 text-xs rounded-full ${post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}
-                          >
-                            {post.published ? '발행됨' : '임시저장'}
-                          </span>
-                        </div>
+        {/* 포스트 목록 */}
+        {filteredPosts.length === 0 ? (
+          <Card>
+            <CardContent className="pt-6">
+              <div className="text-center py-12 text-gray-500">
+                <FileText className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p className="mb-4">
+                  {filter === 'published' && '발행된 포스트가 없습니다.'}
+                  {filter === 'draft' && '임시저장된 포스트가 없습니다.'}
+                  {filter === 'all' && '작성한 포스트가 없습니다.'}
+                </p>
+                <Button asChild>
+                  <Link href="/write">첫 포스트 작성하기</Link>
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="space-y-4">
+            {filteredPosts.map((post) => (
+              <Card key={post.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="text-lg font-semibold">{post.title}</h3>
+                        <span className={`px-2 py-1 text-xs rounded-full ${post.published ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                          {post.published ? '발행됨' : '임시저장'}
+                        </span>
+                      </div>
 
-                        <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
-                          <span>작성: {formatDate(post.createdAt)}</span>
-                          <span>수정: {formatDate(post.updatedAt)}</span>
-                          {post.published && (
-                            <div className="flex items-center space-x-2">
-                              <span>좋아요 {post._count.likes}</span>
-                              <span>댓글 {post._count.comments}</span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* 태그 */}
-                        {post.tags.length > 0 && (
-                          <div className="flex flex-wrap gap-2">
-                            {post.tags.map(({ tag }) => (
-                              <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
-                                {tag.name}
-                              </span>
-                            ))}
+                      <div className="flex items-center space-x-4 text-sm text-gray-500 mb-3">
+                        <span>작성: {formatDate(post.createdAt)}</span>
+                        <span>수정: {formatDate(post.updatedAt)}</span>
+                        {post.published && (
+                          <div className="flex items-center space-x-2">
+                            <span>좋아요 {post._count.likes}</span>
+                            <span>댓글 {post._count.comments}</span>
                           </div>
                         )}
                       </div>
 
-                      <div className="flex items-center space-x-2 ml-4">
-                        {post.published && (
-                          <Button asChild variant="outline" size="sm">
-                            <Link href={`/posts/${post.slug}`}>
-                              <Eye className="h-4 w-4" />
-                            </Link>
-                          </Button>
-                        )}
+                      {/* 태그 */}
+                      {post.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2">
+                          {post.tags.map(({ tag }) => (
+                            <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded">
+                              {tag.name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex items-center space-x-2 ml-4">
+                      {post.published && (
                         <Button asChild variant="outline" size="sm">
-                          <Link href={`/write?edit=${post.id}`}>
-                            <Edit className="h-4 w-4" />
+                          <Link href={`/posts/${post.slug}`}>
+                            <Eye className="h-4 w-4" />
                           </Link>
                         </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleDeleteClick(post.id, post.title)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      )}
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/write?edit=${post.id}`}>
+                          <Edit className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" onClick={() => handleDeleteClick(post.id, post.title)}>
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-    </>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

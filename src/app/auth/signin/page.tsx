@@ -1,7 +1,7 @@
 // src/app/auth/signin/page.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Delete } from 'lucide-react';
 import { InputDeleteBtn } from '@/components/ui/inputDeleteBtn';
+import { cn } from '@/lib/utils';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -20,7 +21,16 @@ export default function SignInPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   const { data: session, status } = useSession();
+
+  // Page entrance animation
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,14 +94,25 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center  py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h1 className="text-3xl font-bold text-gray-900">DevSpace</h1>
-          <p className="mt-2 text-gray-600">개발자 블로그 플랫폼에 로그인하세요</p>
+    <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div
+        className={cn(
+          'max-w-md w-full space-y-8 transition-all duration-500 ease-out transform-gpu',
+          isVisible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-4 scale-95'
+        )}
+      >
+        <div className={cn('text-center transition-all duration-700 ease-out delay-100', isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-2')}>
+          <h1 className="text-3xl font-bold text-slate-900">DevSpace</h1>
+          <p className="mt-2 text-slate-600">개발자 블로그 플랫폼에 로그인하세요</p>
         </div>
 
-        <Card>
+        <Card
+          className={cn(
+            'transition-all duration-700 ease-out delay-200 transform-gpu',
+            'hover:shadow-lg ',
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+          )}
+        >
           <CardHeader>
             <CardTitle className="text-center">로그인</CardTitle>
           </CardHeader>
@@ -118,7 +139,7 @@ export default function SignInPage() {
                   <InputDeleteBtn condition={!!formData.password} reset={() => setFormData({ ...formData, password: '' })} />
                 </div>
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button type="submit" className="w-full transition-all duration-200 hover:scale-[1.02] hover:shadow-md" disabled={loading}>
                 {loading ? '로그인 중...' : '로그인'}
               </Button>
             </form>
@@ -127,7 +148,7 @@ export default function SignInPage() {
               onClick={handleGoogleSignIn}
               disabled={googleLoading || loading}
               variant="outline"
-              className="w-full flex items-center justify-center gap-3 mt-4"
+              className="w-full flex items-center justify-center gap-3 mt-4 transition-all duration-200 hover:scale-[1.02] hover:shadow-md hover:border-blue-300"
             >
               {googleLoading ? (
                 <div className="w-5 h-5 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin"></div>
@@ -154,9 +175,12 @@ export default function SignInPage() {
               <span>{googleLoading ? '구글 로그인 중...' : '구글로 로그인'}</span>
             </Button>
             <div className="mt-4 text-center">
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-slate-600">
                 아직 계정이 없으신가요?{' '}
-                <Link href="/auth/signup" className="text-blue-600 hover:text-blue-500">
+                <Link
+                  href="/auth/signup"
+                  className="text-blue-600 hover:text-blue-500 transition-all duration-200 hover:underline hover:scale-105 inline-block"
+                >
                   회원가입
                 </Link>
               </p>
