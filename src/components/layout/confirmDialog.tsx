@@ -65,8 +65,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               children
             ) : (
               <div className="p-6">
-                <h2 className={`text-xl font-bold mb-4 text-slate-800 dark:text-slate-200 ${alignmentClasses.title}`}>{title}</h2>
-                <p className={`text-slate-600 dark:text-slate-300 mb-6 ${alignmentClasses.message}`}>{message}</p>
+                <h2 className={`text-xl font-bold mb-4 text-slate-800  ${alignmentClasses.title}`}>{title}</h2>
+                <p className={`text-slate-600  mb-6 ${alignmentClasses.message}`}>{message}</p>
                 <div className={`flex space-x-3 ${alignmentClasses.buttons}`}>
                   {btnType === 'double' ? (
                     <>
@@ -75,13 +75,16 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
                       </button>
                       <button
                         onClick={onCancel}
-                        className="px-4 py-2 text-slate-600 hover:text-slate-800 dark:text-slate-300 dark:hover:text-slate-100 border border-slate-300 dark:border-slate-600 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-700"
+                        className="px-4 py-2 text-slate-600 hover:text-slate-800  border border-slate-300  rounded-xl hover:bg-slate-50 "
                       >
                         {cancelText}
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => onConfirm(true)} className="px-4 py-2 bg-blue-500 text-white rounded-xl hover:bg-blue-600">
+                    <button
+                      onClick={() => onConfirm(true)}
+                      className="transition-all duration-300  transform  px-4 py-2 bg-blue-500 text-white rounded-xl hover:scale-105 hover:bg-blue-600"
+                    >
                       {confirmText}
                     </button>
                   )}

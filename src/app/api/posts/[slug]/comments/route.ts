@@ -1,4 +1,3 @@
-// src/app/api/posts/[slug]/comments/route.ts
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
@@ -10,8 +9,9 @@ const createCommentSchema = z.object({
 });
 
 // 댓글 생성
-export async function POST(request: Request, { params }: { params: { slug: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    const { slug } = await params;
     const session = await getServerSession(authOptions);
 
     if (!session?.user) {
@@ -24,7 +24,7 @@ export async function POST(request: Request, { params }: { params: { slug: strin
     // 포스트 존재 확인
     const post = await prisma.post.findUnique({
       where: {
-        slug: params.slug,
+        slug: slug,
         published: true,
       },
       select: { id: true },
@@ -65,12 +65,14 @@ export async function POST(request: Request, { params }: { params: { slug: strin
 }
 
 // 댓글 목록 조회
-export async function GET(request: Request, { params }: { params: { slug: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ slug: string }> }) {
   try {
+    const { slug } = await params;
+
     // 포스트 존재 확인
     const post = await prisma.post.findUnique({
       where: {
-        slug: params.slug,
+        slug: slug,
         published: true,
       },
       select: { id: true },

@@ -11,6 +11,7 @@ import CommentSection from '@/components/posts/comment-section';
 import { renderMarkdownToHtml } from '@/lib/markdown';
 import { formatDate } from '@/lib/utils';
 import { Heart, MessageCircle, ArrowLeft, User } from 'lucide-react';
+import Avatar from '@/components/ui/avatar';
 import LikeButton from '@/components/posts/like-button';
 import { BackButton } from '@/components/ui/backButton';
 
@@ -120,21 +121,21 @@ export default function PostDetailPage() {
         {/* 포스트 메타 정보 */}
         <Card className="mb-8">
           <CardHeader>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">{post.title}</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-4">{post.title}</h1>
 
             <div className="flex items-center justify-between flex-wrap gap-4">
               <div className="flex items-center space-x-4">
                 <div className="flex items-center space-x-2">
-                  <User className="h-4 w-4 text-gray-400" />
+                  <Avatar src={post.author.avatar} alt={`${post.author.name || post.author.username}의 프로필`} size="sm" />
                   <Link href={`/profile/${post.author.username}`} className="text-blue-600 hover:text-blue-500 font-medium">
                     {post.author.name || post.author.username}
                   </Link>
                 </div>
-                <span className="text-gray-500 dark:text-gray-400">•</span>
-                <span className="text-gray-500 dark:text-gray-400">{formatDate(post.createdAt)}</span>
+                <span className="text-gray-500">•</span>
+                <span className="text-gray-500">{formatDate(post.createdAt)}</span>
               </div>
 
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center space-x-4 text-sm text-gray-500">
                 <div className="flex items-center space-x-1">
                   <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
                 </div>
@@ -151,7 +152,7 @@ export default function PostDetailPage() {
             {post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-4">
                 {post.tags.map(({ tag }) => (
-                  <span key={tag.id} className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-sm px-3 py-1 rounded-full transition-colors">
+                  <span key={tag.id} className="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full transition-colors">
                     {tag.name}
                   </span>
                 ))}
@@ -164,7 +165,7 @@ export default function PostDetailPage() {
         <Card className="mb-8">
           <CardContent className="pt-6">
             <div
-              className="prose max-w-none prose-slate dark:prose-invert"
+              className="prose max-w-none prose-slate"
               dangerouslySetInnerHTML={{
                 __html: renderMarkdownToHtml(post.content),
               }}
@@ -182,9 +183,9 @@ export default function PostDetailPage() {
                 </div>
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900 dark:text-gray-100">{post.author.name || post.author.username}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">@{post.author.username}</p>
-                {post.author.bio && <p className="text-gray-600 dark:text-gray-300">{post.author.bio}</p>}
+                <h3 className="font-semibold text-gray-900">{post.author.name || post.author.username}</h3>
+                <p className="text-sm text-gray-500 mb-2">@{post.author.username}</p>
+                {post.author.bio && <p className="text-gray-600">{post.author.bio}</p>}
               </div>
             </div>
           </CardContent>

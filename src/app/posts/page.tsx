@@ -20,11 +20,14 @@ import { useKeenSlider } from 'keen-slider/react';
 import 'keen-slider/keen-slider.min.css';
 import { Post } from './types';
 import { Tag } from '@/types/types';
+import Posts from '@/components/posts/posts';
+import { usePageLoading } from '@/hooks/useLoading';
+import { LoadingScreen } from '@/components/ui/loading';
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { loading, withLoading } = usePageLoading('posts');
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -66,8 +69,6 @@ export default function PostsPage() {
         setTags(data.tags);
       } catch (error) {
         console.log(error);
-      } finally {
-        setLoading(false);
       }
     };
 
@@ -79,7 +80,7 @@ export default function PostsPage() {
   }, [search]);
 
   const fetchPosts = async (pageNum: number = 1, searchTerm: string = '', tag: string = '') => {
-    try {
+    return withLoading(async () => {
       const params = new URLSearchParams({
         page: pageNum.toString(),
         limit: '10',
@@ -97,12 +98,10 @@ export default function PostsPage() {
           setPosts((prev) => [...prev, ...data.posts]);
         }
         setHasMore(data.pagination.page < data.pagination.totalPages);
+      } else {
+        throw new Error('포스트를 불러올 수 없습니다');
       }
-    } catch (error) {
-      console.error('포스트 불러오기 오류:', error);
-    } finally {
-      setLoading(false);
-    }
+    });
   };
 
   const handleSearchSubmit = (e: React.FormEvent, tag: string = '') => {
@@ -118,13 +117,7 @@ export default function PostsPage() {
   };
 
   if (loading) {
-    return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-gray-500">로딩 중...</div>
-        </div>
-      </main>
-    );
+    return <LoadingScreen message="포스트를 불러오는 중..." showBrand={true} />;
   }
 
   return (
@@ -175,7 +168,9 @@ export default function PostsPage() {
         </div>
       ) : (
         <>
-          <div ref={sliderRef} className="keen-slider">
+          <div ref={sliderRef} className="keen-slider overflow-hidden!">
+            <div className="absolute inset-y-0 left-0 w-20 bg-gradient-to-r from-white to-transparent pointer-events-none z-10"></div>
+            <div className="absolute inset-y-0 right-0 w-20 bg-gradient-to-l from-white to-transparent pointer-events-none z-10"></div>
             {tags.map((postTag, index) => (
               <div key={`${postTag.id}-${index}`} className={`keen-slider__slide number-slide${index + 1}`} style={{ width: 'auto', overflow: 'visible' }}>
                 <Button className="mr-3 mb-3 cursor-pointer" variant="outline" onClick={(e) => handleSearchSubmit(e, postTag?.name)}>
@@ -185,46 +180,7 @@ export default function PostsPage() {
             ))}
           </div>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 auto-rows-fr">
-            {posts.map((post) => (
-              <Card key={post.id} className="hover:shadow-lg transition-shadow cursor-pointer h-full flex flex-col">
-                <Link href={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors flex flex-col h-full">
-                  <CardHeader className="flex-shrink-0">
-                    <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-                    <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
-                      <span>
-                        {formatDate(post.createdAt)} • {post.author.name || post.author.username}
-                      </span>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="flex flex-col flex-grow pt-0">
-                    <p className="text-gray-600  line-clamp-3 mb-4" dangerouslySetInnerHTML={{ __html: renderMarkdownToHtml(post.excerpt) }} />
-                    {/* 태그 */}
-                    {post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-4">
-                        {post.tags.map(({ tag }) => (
-                          <span key={tag.id} className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded transition-colors">
-                            {tag.name}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* 통계 */}
-                    <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 pt-4 mt-auto" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center space-x-1">
-                        <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
-                      </div>
-                      <div className="flex items-center space-x-1">
-                        <Button variant="noneBox" className="p-0">
-                          <MessageCircle className="h-4 w-4 mr-1" />
-                          <span>{post._count.comments}</span>
-                        </Button>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Link>
-              </Card>
-            ))}
+            <Posts posts={posts} />
           </div>
 
           {hasMore && (

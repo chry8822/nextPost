@@ -15,6 +15,21 @@ import { useDialog } from '@/hooks/useDialog';
 import ConfirmDialog from '@/components/layout/confirmDialog';
 import { title } from 'process';
 
+const placeholder = `# 제목
+
+## 소제목
+
+여기에 내용을 작성하세요...
+
+- 목록 아이템
+
+- **굵은 글씨**
+
+- *기울임 글씨*
+
+- \`코드\`
+`;
+
 export default function WritePage() {
   const { data: session, status } = useSession();
   const router = useRouter();
@@ -199,16 +214,7 @@ export default function WritePage() {
                     required
                     value={formData.content}
                     onChange={handleChange}
-                    placeholder="# 제목
-
-## 소제목
-
-여기에 내용을 작성하세요...
-
-- 목록 아이템
-- **굵은 글씨**
-- *기울임 글씨*
-- `코드`"
+                    placeholder={placeholder}
                     className="min-h-[400px] font-mono"
                     disabled={loading}
                   />

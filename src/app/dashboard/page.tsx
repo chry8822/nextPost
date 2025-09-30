@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 
 import { formatDate } from '@/lib/utils';
 import { FileText, Eye, Heart, MessageCircle, PlusCircle, Edit, Trash2, BarChart3 } from 'lucide-react';
+import { usePageLoading } from '@/hooks/useLoading';
 
 interface DashboardStats {
   totalPosts: number;
@@ -44,8 +45,10 @@ export default function DashboardPage() {
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [recentPosts, setRecentPosts] = useState<RecentPost[]>([]);
-  const [loading, setLoading] = useState(true);
+  // const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const { loading, withLoading } = usePageLoading('dashboard');
 
   // 로그인 체크
   useEffect(() => {
@@ -57,21 +60,21 @@ export default function DashboardPage() {
     }
 
     const fetchDashboardData = async () => {
-      try {
-        const response = await fetch('/api/dashboard');
-        const data = await response.json();
+      return withLoading(async () => {
+        try {
+          const response = await fetch('/api/dashboard');
+          const data = await response.json();
 
-        if (!response.ok) {
-          throw new Error(data.error || '대시보드 정보를 불러올 수 없습니다');
+          if (!response.ok) {
+            throw new Error(data.error || '대시보드 정보를 불러올 수 없습니다');
+          }
+
+          setStats(data.stats);
+          setRecentPosts(data.recentPosts);
+        } catch (error) {
+          setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다');
         }
-
-        setStats(data.stats);
-        setRecentPosts(data.recentPosts);
-      } catch (error) {
-        setError(error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다');
-      } finally {
-        setLoading(false);
-      }
+      });
     };
 
     fetchDashboardData();

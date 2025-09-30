@@ -11,6 +11,7 @@ import LikeButton from '@/components/posts/like-button';
 import { formatDate } from '@/lib/utils';
 import { Hash, ArrowLeft, Heart, MessageCircle } from 'lucide-react';
 import { BackButton } from '@/components/ui/backButton';
+import { LoadingScreen } from '@/components/ui/loading';
 
 interface Tag {
   id: string;
@@ -47,7 +48,6 @@ interface Post {
 export default function TagDetailPage() {
   const params = useParams();
   const searchParams = useSearchParams();
-  const fromSearch = searchParams.get('from') === 'search';
 
   const [tag, setTag] = useState<Tag | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
@@ -82,20 +82,14 @@ export default function TagDetailPage() {
   }, [params.name]);
 
   if (loading) {
-    return (
-      <main className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center min-h-[400px]">
-          <div className="text-gray-500">로딩 중...</div>
-        </div>
-      </main>
-    );
+    return <LoadingScreen message="로딩 중..." showBrand={true} />;
   }
 
   if (error || !tag) {
     return (
       <main className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">{error || '태그를 찾을 수 없습니다'}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{error || '태그를 찾을 수 없습니다'}</h1>
           <Button asChild variant="outline">
             <Link href="/tags">
               <ArrowLeft className="h-4 w-4 mr-2" />
@@ -122,8 +116,8 @@ export default function TagDetailPage() {
               <div className="flex items-center">
                 <Hash className="h-8 w-8 text-blue-600 mr-3" />
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">{tag.name}</h1>
-                  <p className="text-gray-600 dark:text-gray-300 mt-1">{posts.length}개의 포스트</p>
+                  <h1 className="text-3xl font-bold text-gray-900">{tag.name}</h1>
+                  <p className="text-gray-600 mt-1">{posts.length}개의 포스트</p>
                 </div>
               </div>
               <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-lg font-medium">
@@ -159,16 +153,16 @@ export default function TagDetailPage() {
                   </CardTitle>
                   <div className="flex items-center justify-between text-sm text-gray-500">
                     <div className="flex items-center space-x-2">
-                      <Link href={`/profile/${post.author.username}`} className="text-gray-600 dark:text-gray-300 hover:text-blue-600 transition-colors">
+                      <Link href={`/profile/${post.author.username}`} className="text-gray-600 hover:text-blue-600 transition-colors">
                         {post.author.name || post.author.username}
                       </Link>
-                      <span className="text-gray-400 dark:text-gray-500">•</span>
-                      <span className="text-gray-500 dark:text-gray-400">{formatDate(post.createdAt)}</span>
+                      <span className="text-gray-400">•</span>
+                      <span className="text-gray-500">{formatDate(post.createdAt)}</span>
                     </div>
                   </div>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-gray-600 dark:text-gray-300 line-clamp-3 mb-4">{post.excerpt}</p>
+                  <p className="text-gray-600 line-clamp-3 mb-4">{post.excerpt}</p>
 
                   {/* 태그 */}
                   <div className="flex flex-wrap gap-2 mb-4">
@@ -189,7 +183,7 @@ export default function TagDetailPage() {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
                       <LikeButton postSlug={post.slug} initialLiked={post.isLiked} initialLikeCount={post._count.likes} />
-                      <div className="flex items-center space-x-1 text-sm text-gray-500 dark:text-gray-400">
+                      <div className="flex items-center space-x-1 text-sm text-gray-500">
                         <MessageCircle className="h-4 w-4" />
                         <span>{post._count.comments}</span>
                       </div>

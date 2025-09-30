@@ -133,7 +133,7 @@ export default function TagsPage() {
         ) : (
           <>
             {/* 태그 통계 */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 select-none">
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center">
@@ -149,7 +149,7 @@ export default function TagsPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center">
-                    <FileText className="h-8 w-8 text-green-600 dark:text-green-400" />
+                    <FileText className="h-8 w-8 text-green-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-500">총 포스트</p>
                       <p className="text-2xl font-bold text-gray-900">{totalPosts}</p>
@@ -161,11 +161,11 @@ export default function TagsPage() {
               <Card>
                 <CardContent className="pt-6">
                   <div className="flex items-center">
-                    <Hash className="h-8 w-8 text-purple-600 dark:text-purple-400" />
+                    <Hash className="h-8 w-8 text-purple-600" />
                     <div className="ml-4">
                       <p className="text-sm font-medium text-gray-500">인기 태그</p>
                       <p className="text-2xl font-bold text-gray-900">{mostPopularTag?.name || '-'}</p>
-                      {mostPopularTag && <p className="text-xs text-gray-400 dark:text-gray-500">{mostPopularTag._count.posts}개 포스트</p>}
+                      {mostPopularTag && <p className="text-xs text-gray-400">{mostPopularTag._count.posts}개 포스트</p>}
                     </div>
                   </div>
                 </CardContent>
@@ -173,7 +173,7 @@ export default function TagsPage() {
             </div>
 
             {/* 태그 클라우드 */}
-            <Card>
+            <Card className="select-none">
               <CardHeader>
                 <CardTitle>태그 클라우드</CardTitle>
               </CardHeader>
@@ -182,7 +182,7 @@ export default function TagsPage() {
                   {tags.map((tag) => (
                     <Link key={tag.id} href={`/tags/${encodeURIComponent(tag.name)}`} className="block">
                       <span
-                        className={`transition-transform duration-200 ease-out inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900 hover:scale-200 hover:shadow-md ${getTagSizeClass(
+                        className={`transition-transform duration-200 ease-out inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 hover:bg-blue-200 hover:text-blue-900 hover:scale-110 hover:shadow-md ${getTagSizeClass(
                           tag._count.posts
                         )}`}
                       >
@@ -202,7 +202,7 @@ export default function TagsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {tags.map((tag) => (
                   <Link href={`/tags/${encodeURIComponent(tag.name)}`}>
-                    <Card key={tag.id} className="hover:shadow-lg transition-shadow">
+                    <Card key={tag.id} className="hover:shadow-lg transition-shadow hover:scale-105 transition-transform">
                       <CardContent className="pt-6">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center">

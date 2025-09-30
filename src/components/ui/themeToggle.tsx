@@ -33,7 +33,7 @@ export default function ThemeToggle({ showLabel = false, size = 'sm' }: ThemeTog
     localStorage.setItem('theme', newTheme);
     document.documentElement.setAttribute('data-theme', newTheme);
 
-    // HTML 태그에 dark 클래스 추가/제거 (Tailwind CSS dark: 모디파이어용)
+    // HTML 태그에 dark 클래스 추가/제거 (사용 안함)
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
       console.log('다크 모드 적용됨 - dark 클래스 추가');

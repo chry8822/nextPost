@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from '@/components/ui/button';
 import { User, LogOut, PlusCircle, Home, FileText, Tag, Search } from 'lucide-react';
+import Avatar from '@/components/ui/avatar';
 import ThemeToggle from '../ui/themeToggle';
 import { useEffect, useState } from 'react';
 import { VerticalLine } from '../ui/lines';
@@ -77,7 +78,7 @@ export default function Header() {
             ) : session ? (
               // 로그인된 경우
               <div className="flex items-center space-x-3">
-                <VerticalLine height={2} />
+                <VerticalLine height={2} className="inline md:hidden" />
 
                 <Button asChild variant="ghost" size="sm" className="m-0 px-1">
                   <Link href="/write">
@@ -97,25 +98,27 @@ export default function Header() {
                 </Button>
                 <VerticalLine height={2} />
 
-                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
-                  <Link href={`/profile/${session.user.username}`}>
-                    <User className="h-4 w-4 mr-2" />
-                    {session.user.name || session.user.username}
-                  </Link>
-                </Button>
-                <VerticalLine height={2} />
+                <VerticalLine height={2} className="hidden lg:block" />
 
-                <Button asChild variant="ghost" size="sm" className="m-0 px-1">
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1 hidden lg:inline-flex">
                   <Link href="/search">
                     <Search className="h-4 w-4 mr-2" />
                     통합검색
                   </Link>
                 </Button>
 
-                <VerticalLine height={2} />
-                <Button variant="ghost" size="sm" className="m-0 px-1" onClick={handleSignOut}>
+                <VerticalLine height={2} className="hidden lg:block" />
+
+                {/* <Button variant="ghost" size="sm" className="m-0 px-1" onClick={handleSignOut}>
                   <LogOut className="h-4 w-4 mr-2 " />
                   로그아웃
+                </Button> */}
+
+                <Button asChild variant="ghost" size="sm" className="m-0 px-1 hidden lg:inline-flex">
+                  <Link href={`/profile/${session.user.username}`}>
+                    <Avatar src={session.user.avatar} alt={`${session.user.name || session.user.username}의 프로필`} size="sm" className="mr-2" />
+                    {session.user.name || session.user.username}
+                  </Link>
                 </Button>
               </div>
             ) : (

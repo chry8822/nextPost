@@ -17,7 +17,7 @@ export default function Posts({ posts }: { posts: Post[] }) {
           <Link href={`/posts/${post.slug}`} className="hover:text-blue-600 transition-colors flex flex-col h-full">
             <CardHeader className="flex-shrink-0">
               <CardTitle className="line-clamp-2">{post.title}</CardTitle>
-              <div className="flex items-center justify-between text-sm text-gray-500 dark:text-gray-400">
+              <div className="flex items-center justify-between text-sm text-gray-500">
                 <span>
                   {formatDate(post.createdAt)} • {post.author.name || post.author.username}
                 </span>
@@ -36,8 +36,7 @@ export default function Posts({ posts }: { posts: Post[] }) {
                 </div>
               )}
 
-              {/* 통계 */}
-              <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400 pt-4 mt-auto" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center space-x-4 text-sm text-gray-500 pt-4 mt-auto" onClick={(e) => e.stopPropagation()}>
                 <div className="flex items-center space-x-1">
                   <LikeButton initialLiked={post.isLiked} postSlug={post.slug} initialLikeCount={post._count.likes} />
                 </div>

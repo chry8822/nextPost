@@ -23,7 +23,7 @@ export default function DeletePostDialog({ postTitle, onConfirm, onCancel, loadi
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          <p className="text-slate-700 dark:text-slate-300">
+          <p className="text-slate-700">
             정말로 <strong>"{postTitle}"</strong> 포스트를 삭제하시겠습니까?
           </p>
           <p className="text-sm text-red-600">⚠️ 이 작업은 되돌릴 수 없습니다. 포스트와 관련된 모든 댓글, 좋아요가 함께 삭제됩니다.</p>

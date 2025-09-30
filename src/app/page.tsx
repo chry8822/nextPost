@@ -93,11 +93,8 @@ export default function HomePage() {
             let step = 0;
             const timer = setInterval(() => {
               step++;
-              setStats({
-                posts: Math.floor((targets.posts * step) / steps),
-                users: Math.floor((targets.users * step) / steps),
-                views: Math.floor((targets.views * step) / steps),
-              });
+              const newStats = Object.fromEntries(Object.entries(targets).map(([key, value]) => [key, Math.floor((value * step) / steps)])) as typeof stats;
+              setStats(newStats);
 
               if (step >= steps) {
                 clearInterval(timer);
